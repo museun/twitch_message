@@ -170,11 +170,12 @@ where
             Self::GlobalUserState => MessageKind::GlobalUserState,
             Self::UserState => MessageKind::UserState,
             Self::RoomState => MessageKind::RoomState,
-            Self::PrivMsg => MessageKind::PrivMsg,
+            Self::Privmsg => MessageKind::Privmsg,
             Self::ClearChat => MessageKind::ClearChat,
             Self::ClearMsg => MessageKind::ClearMsg,
             Self::Notice => MessageKind::Notice,
             Self::HostTarget => MessageKind::HostTarget,
+            Self::UserNotice => MessageKind::UserNotice,
             Self::Whisper => MessageKind::Whisper,
             Self::Reconnect => MessageKind::Reconnect,
             Self::Numeric(n) => MessageKind::Numeric(n),
@@ -328,11 +329,11 @@ where
     }
 }
 
-impl<'a> IntoStatic for PrivMsg<'a>
+impl<'a> IntoStatic for Privmsg<'a>
 where
     'static: 'a,
 {
-    type Output = PrivMsg<'static>;
+    type Output = Privmsg<'static>;
     fn into_static(self) -> Self::Output {
         Self::Output {
             channel: self.channel.into_static(),
@@ -395,6 +396,21 @@ where
     }
 }
 
+impl<'a> IntoStatic for UserNotice<'a>
+where
+    'static: 'a,
+{
+    type Output = UserNotice<'static>;
+    fn into_static(self) -> Self::Output {
+        Self::Output {
+            raw: self.raw.into_static(),
+            tags: self.tags.into_static(),
+            channel: self.channel.into_static(),
+            data: self.data.into_static(),
+        }
+    }
+}
+
 impl<'a> IntoStatic for Whisper<'a>
 where
     'static: 'a,
@@ -405,7 +421,7 @@ where
             raw: self.raw.into_static(),
             from_user: self.from_user.into_static(),
             to_user: self.to_user.into_static(),
-            message: self.message.into_static(),
+            data: self.data.into_static(),
             tags: self.tags.into_static(),
         }
     }

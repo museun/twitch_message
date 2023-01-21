@@ -13,11 +13,12 @@ pub enum MessageKind<'a> {
     GlobalUserState,
     UserState,
     RoomState,
-    PrivMsg,
+    Privmsg,
     ClearChat,
     ClearMsg,
     Notice,
     HostTarget,
+    UserNotice,
     Whisper,
     Reconnect,
     Numeric(u16),
@@ -53,12 +54,14 @@ impl<'a> Parse<'a> for MessageKind<'a> {
             "USERSTATE" => Self::UserState,
             "ROOMSTATE" => Self::RoomState,
 
-            "PRIVMSG" => Self::PrivMsg,
+            "PRIVMSG" => Self::Privmsg,
             "NOTICE" => Self::Notice,
 
             "CLEARCHAT" => Self::ClearChat,
             "CLEARMSG" => Self::ClearMsg,
             "HOSTTARGET" => Self::HostTarget,
+
+            "USERNOTICE" => Self::UserNotice,
 
             "WHISPER" => Self::Whisper,
 

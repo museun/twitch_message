@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 
-use super::{Message, Prefix, Tags};
+use crate::{badges::badges_from_tags, emotes::emotes_from_tags, Badge, Color, Emote};
+
+use super::{Message, Prefix, Tags, UserType};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
@@ -8,8 +10,49 @@ pub struct Whisper<'a> {
     pub raw: Cow<'a, str>,
     pub from_user: Cow<'a, str>,
     pub to_user: Cow<'a, str>,
-    pub message: Cow<'a, str>,
+    pub data: Cow<'a, str>,
     pub tags: Tags<'a>,
+}
+
+impl<'a> Whisper<'a> {
+    pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
+        badges_from_tags(&self.tags)
+    }
+
+    pub fn color(&self) -> Option<Color> {
+        self.tags.color()
+    }
+
+    pub fn display_name(&self) -> Option<&str> {
+        self.tags.get("display-name")
+    }
+
+    pub fn emotes<'t: 'a>(&'t self) -> impl Iterator<Item = Emote<'a>> + 't {
+        emotes_from_tags(&self.tags, &self.data)
+    }
+
+    pub fn msg_id(&self) -> Option<&str> {
+        self.tags.get("message-id")
+    }
+
+    pub fn thread_id(&self) -> Option<&str> {
+        self.tags.get("thread-id")
+    }
+
+    pub fn user_id(&self) -> Option<&str> {
+        self.tags.get("user-id")
+    }
+
+    pub fn is_turbo(&self) -> bool {
+        self.tags.bool("turbo")
+    }
+
+    pub fn user_type(&self) -> UserType {
+        self.tags
+            .get("user-type")
+            .map(UserType::parse)
+            .unwrap_or_default()
+    }
 }
 
 impl Whisper<'_> {
@@ -35,7 +78,7 @@ impl<'a> TryFrom<Message<'a>> for Whisper<'a> {
                 Prefix::User { name, .. } => name,
                 _ => unreachable!(),
             },
-            message: value.data.unwrap(),
+            data: value.data.unwrap(),
             tags: value.tags,
         })
     }
@@ -56,7 +99,7 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for Whisper<'a> {
                 Prefix::User { name, .. } => name,
                 _ => unreachable!(),
             },
-            message: value.data.clone().unwrap(),
+            data: value.data.clone().unwrap(),
             tags: value.tags.clone(),
         })
     }
@@ -81,7 +124,7 @@ mod tests {
                 tags,
                 to_user: Cow::from("museun"),
                 from_user: Cow::from("shaken_bot"),
-                message: Cow::from("this is a test")
+                data: Cow::from("this is a test")
             }
         );
     }

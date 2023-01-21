@@ -26,7 +26,7 @@ impl<'a> Prefix<'a> {
         matches!(self, Self::Server { .. })
     }
 
-    pub fn as_str(&self) -> Option<&str> {
+    pub fn as_name_str(&self) -> Option<&str> {
         match self {
             Self::User { name, .. } | Self::Server { host: name } => Some(name),
             _ => None,

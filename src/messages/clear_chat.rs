@@ -11,6 +11,24 @@ pub struct ClearChat<'a> {
     pub tags: Tags<'a>,
 }
 
+impl<'a> ClearChat<'a> {
+    pub fn ban_duration(&self) -> Option<usize> {
+        self.tags.parsed("ban-duration").transpose().ok().flatten()
+    }
+
+    pub fn room_id(&self) -> Option<&str> {
+        self.tags.get("room-id")
+    }
+
+    pub fn target_user_id(&self) -> Option<&str> {
+        self.tags.get("target-user-id")
+    }
+
+    pub fn tmi_sent_ts(&self) -> Option<&str> {
+        self.tags.get("tmi-sent-ts")
+    }
+}
+
 impl ClearChat<'_> {
     fn validate(value: &Message<'_>) -> bool {
         !value.args.is_empty()
@@ -18,6 +36,7 @@ impl ClearChat<'_> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum ClearChatTarget<'a> {
     All,
     User(Cow<'a, str>),

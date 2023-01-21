@@ -16,7 +16,7 @@ mod ready;
 pub use ready::Ready;
 
 mod global_user_state;
-pub use global_user_state::GlobalUserState;
+pub use global_user_state::{GlobalUserState, UserType};
 
 mod user_state;
 pub use user_state::UserState;
@@ -24,8 +24,8 @@ pub use user_state::UserState;
 mod room_state;
 pub use room_state::RoomState;
 
-mod priv_msg;
-pub use priv_msg::PrivMsg;
+mod privmsg;
+pub use privmsg::Privmsg;
 
 mod clear_chat;
 pub use clear_chat::{ClearChat, ClearChatTarget};
@@ -34,7 +34,7 @@ mod clear_msg;
 pub use clear_msg::ClearMsg;
 
 mod notice;
-pub use notice::Notice;
+pub use notice::{Notice, NoticeKind};
 
 mod host_target;
 pub use host_target::{HostMode, HostTarget};
@@ -44,3 +44,6 @@ pub use whisper::Whisper;
 
 mod reconnect;
 pub use reconnect::Reconnect;
+
+mod user_notice;
+pub use user_notice::UserNotice;

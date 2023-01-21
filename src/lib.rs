@@ -47,7 +47,6 @@ pub use emotes::{parse_emotes, Emote};
 
 #[cfg(feature = "ping")]
 mod ping_tracker;
-
 #[cfg(feature = "ping")]
 pub use ping_tracker::PingTracker;
 

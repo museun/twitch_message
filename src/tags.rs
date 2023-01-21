@@ -16,7 +16,7 @@ impl<'a> std::fmt::Debug for Tags<'a> {
 
 impl<'a> Tags<'a> {
     pub fn get(&self, key: &str) -> Option<&str> {
-        self.inner.get(key).map(|v| &**v)
+        self.inner.get(key).map(|v| &**v).filter(|s| !s.is_empty())
     }
 
     pub fn parsed<T>(&self, key: &str) -> Option<Result<T, T::Err>>
@@ -25,6 +25,10 @@ impl<'a> Tags<'a> {
         T::Err: std::fmt::Display,
     {
         self.get(key).map(<str>::parse)
+    }
+
+    pub fn bool(&self, key: &str) -> bool {
+        self.get(key).filter(|&s| s == "1").is_some()
     }
 
     // tmi-ts

@@ -181,7 +181,7 @@ impl PrivmsgBuilder {
                 user: prefix.clone(),
                 host: prefix,
             },
-            kind: MessageKind::PrivMsg,
+            kind: MessageKind::Privmsg,
             args: vec![channel],
             data: Some(data),
         })

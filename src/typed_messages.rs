@@ -1,10 +1,15 @@
-use crate::{messages::*, IntoStatic, Message, MessageKind};
+use crate::{
+    messages::{
+        Capability, ClearChat, ClearMsg, GlobalUserState, HostTarget, IrcReady, Notice, Ping, Pong,
+        Privmsg, Ready, Reconnect, RoomState, UserNotice, UserState, Whisper,
+    },
+    IntoStatic, Message, MessageKind,
+};
 
 pub trait TypedMessageMarker<'a>
 where
     Self: Sized + IntoStatic + Clone + private::Sealed,
-    Self: for<'b> TryFrom<&'b Message<'a>>,
-    Self: TryFrom<Message<'a>>,
+    Self: for<'b> TryFrom<&'b Message<'a>> + TryFrom<Message<'a>>,
 {
     #[inline(always)]
     fn is_kind(_kind: &MessageKind) -> bool {
@@ -56,11 +61,12 @@ typed_message! {
     GlobalUserState => GLOBAL_USER_STATE ; 5
     UserState       => USER_STATE        ; 6
     RoomState       => ROOM_STATE        ; 7
-    PrivMsg         => PRIV_MSG          ; 8
+    Privmsg         => PRIV_MSG          ; 8
     ClearChat       => CLEAR_CHAT        ; 9
     ClearMsg        => CLEAR_MSG         ; 10
     Notice          => NOTICE            ; 11
     HostTarget      => HOST_TARGET       ; 12
-    Whisper         => WHISPER           ; 13
-    Reconnect       => RECONNECT         ; 14
+    UserNotice      => USER_NOTICE       ; 13
+    Whisper         => WHISPER           ; 14
+    Reconnect       => RECONNECT         ; 15
 }

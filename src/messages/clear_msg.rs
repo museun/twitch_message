@@ -11,6 +11,24 @@ pub struct ClearMsg<'a> {
     pub tags: Tags<'a>,
 }
 
+impl<'a> ClearMsg<'a> {
+    pub fn login(&self) -> Option<&str> {
+        self.tags.get("login")
+    }
+
+    pub fn room_id(&self) -> Option<&str> {
+        self.tags.get("room-id")
+    }
+
+    pub fn target_msg_id(&self) -> Option<&str> {
+        self.tags.get("target-msg-id")
+    }
+
+    pub fn tmi_sent_ts(&self) -> Option<&str> {
+        self.tags.get("tmi-sent-ts")
+    }
+}
+
 impl ClearMsg<'_> {
     fn validate(value: &Message<'_>) -> bool {
         !value.args.is_empty() && value.data.is_some()

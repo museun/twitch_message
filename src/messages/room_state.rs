@@ -9,6 +9,32 @@ pub struct RoomState<'a> {
     pub raw: Cow<'a, str>,
 }
 
+impl<'a> RoomState<'a> {
+    pub fn emote_only(&self) -> bool {
+        self.tags.bool("emote-only")
+    }
+
+    pub fn followers_only(&self) -> Option<usize> {
+        self.tags.parsed("followers-only")?.ok()
+    }
+
+    pub fn r9k(&self) -> bool {
+        self.tags.bool("r9k")
+    }
+
+    pub fn room_id(&self) -> Option<&str> {
+        self.tags.get("room-id")
+    }
+
+    pub fn slow(&self) -> Option<usize> {
+        self.tags.parsed("slow")?.ok()
+    }
+
+    pub fn subs_only(&self) -> bool {
+        self.tags.bool("subs-only")
+    }
+}
+
 impl<'a> TryFrom<Message<'a>> for RoomState<'a> {
     type Error = Message<'a>;
 

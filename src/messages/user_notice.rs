@@ -1,11 +1,10 @@
 use std::borrow::Cow;
 
 use crate::{
-    badges::badges_from_tags, emotes::emotes_from_tags, parse_badges, Badge, Color, Emote, Message,
-    Tags,
+    badges::badges_from_tags, emotes::emotes_from_tags, parse_badges, Badge, Color, Emote, Tags,
 };
 
-use super::UserType;
+use super::{Message, UserType};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
@@ -97,7 +96,7 @@ impl<'a> UserNotice<'a> {
         // XXX: docs have this in a weird casing, going to try the other as well.
         self.tags
             .get("msg-param-displayName")
-            .or(self.tags.get("msg-param-display-name"))
+            .or_else(|| self.tags.get("msg-param-display-name"))
     }
 
     pub fn msg_param_login(&self) -> Option<&str> {

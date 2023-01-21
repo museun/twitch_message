@@ -1,9 +1,10 @@
 use crate::{
     messages::{
-        Capability, ClearChat, ClearMsg, GlobalUserState, HostTarget, IrcReady, Notice, Ping, Pong,
-        Privmsg, Ready, Reconnect, RoomState, UserNotice, UserState, Whisper,
+        Capability, ClearChat, ClearMsg, GlobalUserState, HostTarget, IrcReady, Message,
+        MessageKind, Notice, Ping, Pong, Privmsg, Ready, Reconnect, RoomState, UserNotice,
+        UserState, Whisper,
     },
-    IntoStatic, Message, MessageKind,
+    IntoStatic,
 };
 
 pub trait TypedMessageMarker<'a>

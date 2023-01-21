@@ -1,4 +1,5 @@
-use crate::{Error, Message};
+use super::message::Message;
+use crate::Error;
 
 pub trait Parse<'a>: Sized {
     type Output;

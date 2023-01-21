@@ -1,7 +1,8 @@
 use std::borrow::Cow;
 
 use crate::{
-    typed_messages::TypedMessageMarker, Error, IntoStatic, MessageKind, Parse, Prefix, Tags,
+    messages::MessageKind, typed_messages::TypedMessageMarker, Error, IntoStatic, Parse, Prefix,
+    Tags,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]

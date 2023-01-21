@@ -10,7 +10,7 @@ mod prefix;
 pub use prefix::Prefix;
 
 mod tags;
-pub use tags::{Tags, TagsBuilder};
+pub use tags::Tags;
 
 mod color;
 pub use color::Color;
@@ -18,7 +18,6 @@ pub use color::Color;
 pub mod escape;
 
 mod message_kind;
-pub use message_kind::MessageKind;
 
 pub mod messages;
 
@@ -26,7 +25,6 @@ mod typed_messages;
 use typed_messages::TypedMessageMarker;
 
 mod message;
-pub use message::{Message, PrivmsgBuilder, PrivmsgBuilderError};
 
 mod parse;
 use parse::Parse;
@@ -44,6 +42,11 @@ pub use badges::{parse_badges, Badge, BadgeInfo};
 
 mod emotes;
 pub use emotes::{parse_emotes, Emote};
+
+pub mod builders {
+    pub use crate::message::{PrivmsgBuilder, PrivmsgBuilderError};
+    pub use crate::tags::TagsBuilder;
+}
 
 #[cfg(feature = "ping")]
 mod ping_tracker;

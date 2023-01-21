@@ -1,4 +1,6 @@
-use super::{Message, Prefix, Tags};
+use super::{Prefix, Tags};
+
+pub use super::{message::Message, message_kind::MessageKind};
 
 mod capability;
 pub use capability::Capability;
@@ -46,4 +48,4 @@ mod reconnect;
 pub use reconnect::Reconnect;
 
 mod user_notice;
-pub use user_notice::UserNotice;
+pub use user_notice::{UserNotice, UserNoticeId};

@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{messages::*, HashMap, Message, MessageKind, Prefix, Tags};
+use crate::{messages::*, HashMap, Prefix, Tags};
 
 pub trait IntoStatic {
     type Output: 'static;

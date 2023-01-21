@@ -3,8 +3,7 @@ use std::time::{Duration, Instant};
 use crate::{
     encode::{pong, Pong},
     lock::Lock,
-    messages::Ping,
-    Message,
+    messages::{Message, Ping},
 };
 
 pub struct PingTracker {

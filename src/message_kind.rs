@@ -25,6 +25,31 @@ pub enum MessageKind<'a> {
     Unknown(Cow<'a, str>),
 }
 
+impl MessageKind<'_> {
+    pub(crate) const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Capability => "Capability",
+            Self::Ping => "Ping",
+            Self::Pong => "Pong",
+            Self::IrcReady => "IrcReady",
+            Self::Ready => "Ready",
+            Self::GlobalUserState => "GlobalUserState",
+            Self::UserState => "UserState",
+            Self::RoomState => "RoomState",
+            Self::Privmsg => "Privmsg",
+            Self::ClearChat => "ClearChat",
+            Self::ClearMsg => "ClearMsg",
+            Self::Notice => "Notice",
+            Self::HostTarget => "HostTarget",
+            Self::UserNotice => "UserNotice",
+            Self::Whisper => "Whisper",
+            Self::Reconnect => "Reconnect",
+            Self::Numeric(_) => "Numeric",
+            Self::Unknown(_) => "Unknown",
+        }
+    }
+}
+
 impl<'a> Parse<'a> for MessageKind<'a> {
     type Output = Result<Self, Error>;
 

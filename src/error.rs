@@ -3,6 +3,10 @@
 pub enum Error {
     MalformedMessage,
     InvalidNumeric,
+    IncorrectMessageType {
+        expected: &'static str,
+        got: &'static str,
+    },
 }
 
 impl std::fmt::Display for Error {
@@ -10,6 +14,9 @@ impl std::fmt::Display for Error {
         match self {
             Self::MalformedMessage => f.write_str("the message was malformed"),
             Self::InvalidNumeric => f.write_str("invalid message numeric"),
+            Self::IncorrectMessageType { expected, got } => {
+                write!(f, "got {got}, expected: {expected}")
+            }
         }
     }
 }

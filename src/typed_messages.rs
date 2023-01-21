@@ -16,6 +16,8 @@ where
     fn is_kind(_kind: &MessageKind) -> bool {
         false
     }
+
+    fn kind() -> &'static str;
 }
 
 mod private {
@@ -29,6 +31,10 @@ macro_rules! typed_message {
             impl<'a> super::TypedMessageMarker<'a> for $kind<'a> {
                 fn is_kind(kind: &MessageKind) -> bool {
                     Self::is_kind(kind)
+                }
+
+                fn kind() -> &'static str {
+                    stringify!($kind)
                 }
             }
 

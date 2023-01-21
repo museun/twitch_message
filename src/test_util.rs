@@ -3,11 +3,7 @@ use std::borrow::Cow;
 use crate::{typed_messages::TypedMessageMarker, Parse, Tags};
 
 pub fn parse_as<'a, T: TypedMessageMarker<'a>>(input: &'a str) -> T {
-    crate::parse(input)
-        .unwrap()
-        .message
-        .as_typed_message::<T>()
-        .unwrap()
+    crate::parse_as::<T>(input).unwrap()
 }
 
 pub fn raw(input: &str) -> Cow<'_, str> {

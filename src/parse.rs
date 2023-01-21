@@ -1,5 +1,5 @@
 use super::message::Message;
-use crate::Error;
+use crate::{typed_messages::TypedMessageMarker, Error};
 
 pub trait Parse<'a>: Sized {
     type Output;
@@ -52,4 +52,16 @@ pub fn parse_many(mut input: &str) -> impl Iterator<Item = Result<Message<'_>, E
             Err(err) => Some(Err(err)),
         }
     })
+}
+
+pub fn parse_as<'a, T>(input: &'a str) -> Result<T, Error>
+where
+    T: TypedMessageMarker<'a>,
+{
+    let msg = crate::parse(input)?.message;
+    msg.as_typed_message::<T>()
+        .ok_or_else(|| Error::IncorrectMessageType {
+            expected: T::kind(),
+            got: msg.kind.as_str(),
+        })
 }

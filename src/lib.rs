@@ -164,6 +164,7 @@
 //!
 //! ---
 //! Twitch chat reference: [`link`](https://dev.twitch.tv/docs/irc/)
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 #[cfg(not(feature = "hashbrown"))]
 pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V>;

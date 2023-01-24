@@ -3,7 +3,6 @@ name          = "twitch_message"
 version       = "0.1.0"
 edition       = "2021"
 license       = "0BSD"
-license-file  = "LICENSE.TXT"
 description   = "A parser for Twitch.tv chat messages"
 keywords      = ["twitch"]
 repository    = "https://github.com/museun/twitch_message"
@@ -24,3 +23,7 @@ std         = ["ping"]
 serde       = ["dep:serde", "hashbrown/serde"]
 hashbrown   = ["dep:hashbrown"]
 parking_lot = ["dep:parking_lot"]
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+all-features = true

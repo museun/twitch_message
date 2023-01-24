@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use crate::{Error, Parse};
 
+/// The kind of the [`Message`](crate::messages::Message)
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum MessageKind<'a> {

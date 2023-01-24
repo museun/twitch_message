@@ -1,5 +1,6 @@
 use super::octo;
 
+/// Sends a message to a channel
 pub const fn privmsg<'a>(channel: &'a str, data: &'a str) -> Privmsg<'a> {
     Privmsg {
         channel,
@@ -8,6 +9,7 @@ pub const fn privmsg<'a>(channel: &'a str, data: &'a str) -> Privmsg<'a> {
     }
 }
 
+/// Sends a message to a channel, with a provided `reply-parent-msg-id` attached
 pub const fn reply<'a>(id: &'a str, channel: &'a str, data: &'a str) -> Privmsg<'a> {
     Privmsg {
         reply_id: Some(id),
@@ -16,7 +18,8 @@ pub const fn reply<'a>(id: &'a str, channel: &'a str, data: &'a str) -> Privmsg<
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`privmsg`] or [`reply`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Privmsg<'a> {
     reply_id: Option<&'a str>,
     channel: &'a str,

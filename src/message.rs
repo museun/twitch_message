@@ -1,8 +1,10 @@
 use std::borrow::Cow;
 
 use crate::{
-    messages::MessageKind, typed_messages::TypedMessageMarker, Error, IntoStatic, Parse, Prefix,
-    Tags,
+    encode::octo,
+    messages::{MessageKind, Privmsg},
+    typed_messages::TypedMessageMarker,
+    Error, IntoStatic, Parse, Prefix, Tags,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -122,7 +124,27 @@ impl std::error::Error for PrivmsgBuilderError {
     }
 }
 
-#[derive(Default)]
+/// A builder for constructing a [`Message`](crate::messages::Message) or [`Privmsg`](crate::messages::Privmsg) (and its `raw` format)
+///
+/// ```rust
+/// use twitch_message::builders::PrivmsgBuilder;
+/// use twitch_message::messages::{Privmsg, Message, MessageKind};
+///
+/// let builder = PrivmsgBuilder::default()
+///     .channel("museun")
+///     .sender("shaken_bot")
+///     .data("~ Kappa");
+///
+/// let expected = ":shaken_bot!shaken_bot@shaken_bot.tmi.twitch.tv PRIVMSG #museun :~ Kappa\r\n";
+///
+/// let msg: Message<'_> = builder.clone().finish_message().unwrap();
+/// assert_eq!(msg.raw, expected);
+/// assert_eq!(msg.kind, MessageKind::Privmsg);
+///
+/// let pm: Privmsg<'_> = builder.finish_privmsg().unwrap();
+/// assert_eq!(pm.raw, expected)
+/// ```
+#[derive(Default, Clone)]
 pub struct PrivmsgBuilder {
     tags: Option<Tags<'static>>,
     sender: Option<Cow<'static, str>>,
@@ -131,31 +153,45 @@ pub struct PrivmsgBuilder {
 }
 
 impl PrivmsgBuilder {
+    /// Create a new builder
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Give it some *optional* tags
     pub fn tags(mut self, tags: Tags<'_>) -> Self {
         self.tags.replace(tags.into_static());
         self
     }
 
+    /// Give it the *required* sender
     pub fn sender(mut self, sender: &str) -> Self {
         self.sender.replace(sender.into_static());
         self
     }
 
+    /// Give it the *required* channel
     pub fn channel(mut self, channel: &str) -> Self {
         self.channel.replace(Cow::from(channel.to_string()));
         self
     }
 
+    /// Give it the *required* data
     pub fn data(mut self, data: &str) -> Self {
         self.data.replace(Cow::from(data.to_string()));
         self
     }
 
-    pub fn finish(self) -> Result<Message<'static>, PrivmsgBuilderError> {
+    /// Construct a [`Privmsg`](crate::messages::Privmsg) from this builder
+    pub fn finish_privmsg(self) -> Result<Privmsg<'static>, PrivmsgBuilderError> {
+        Ok(self
+            .finish_message()?
+            .into_typed_message::<Privmsg>()
+            .unwrap())
+    }
+
+    /// Construct a [`Message`](crate::messages::Message) from this builder
+    pub fn finish_message(self) -> Result<Message<'static>, PrivmsgBuilderError> {
         let tags = self.tags.unwrap_or_default();
 
         let get =
@@ -166,10 +202,11 @@ impl PrivmsgBuilder {
         let data = get(self.data, PrivmsgBuilderError::MissingData)?;
 
         let raw = format!(
-            "{tags}{space}:{prefix}!{prefix}@{prefix}.tmi.twitch.tv PRIVMSG {channel} :{data}\r\n",
+            "{tags}{space}:{prefix}!{prefix}@{prefix}.tmi.twitch.tv PRIVMSG {octo}{channel} :{data}\r\n",
             tags = tags.to_raw(),
             space = if tags.inner.is_empty() { "" } else { " " },
             prefix = prefix,
+            octo = octo(&channel),
             channel = channel,
             data = data,
         );

@@ -1,3 +1,38 @@
+//! This module provides encoding of typed messages
+//!
+//! Without the `std` feature enabled, you'll only be able to encode to a [`core::fmt::Write`] source (e.g. a [`String`])
+//!
+//! If you enable the `std` feature, then you'll also be able to encode to a [`std::io::Write`] source (e.g. a [`Vec<u8>`] or a [`std::net::TcpStream`])
+//!
+//! # Provided traits:
+//!
+//! | Trait | Description | Feature | Example |
+//! | --- | --- | --- | --- |
+//! | [`Format`] | Format this message to the [`core::fmt::Write`] | -- | `ping("asdf").format(&mut buf)` |
+//! | [`Formattable`] | Using [`core::fmt::Write`] format this message  | -- | `buf.format_msg(ping("asdf"))` |
+//! | [`Encode`] | Encode this message to the [`std::io::Write`] | `std` | `ping("asdf").encode(&mut buf)` |
+//! | [`Encodable`] | Using [`std::io::Write`] type encode this message | `std` | `buf.encode_msg(ping("asdf"))` |
+//!
+//! Using one of the [functions](#functions) creates one of the [types](#structs).
+//!
+//! These don't allocate directly and when using with `&'static str` can be stored in `static`/`const` contexts.
+//!
+//! # Example
+//!
+//! ```rust
+//! use twitch_message::encode::{privmsg, Privmsg, Format, Formattable};
+//!
+//! const KAPPA: Privmsg<'static> = privmsg("museun", "Kappa");
+//!
+//! let vohiyo = privmsg("museun", "VoHiYo");
+//!
+//! let mut buf = String::new();
+//! KAPPA.format(&mut buf).unwrap();
+//! buf.format_msg(vohiyo).unwrap();
+//!
+//! assert_eq!(buf, "PRIVMSG #museun :Kappa\r\nPRIVMSG #museun :VoHiYo\r\n")
+//! ```
+
 #[cfg(feature = "std")]
 mod io;
 #[cfg(feature = "std")]
@@ -7,7 +42,7 @@ mod fmt;
 pub use fmt::{Format, Formattable};
 
 mod capability;
-pub use capability::Capability;
+pub use capability::{Capability, ALL_CAPABILITIES};
 
 mod join;
 pub use join::{join, Join};
@@ -31,7 +66,7 @@ mod raw;
 pub use raw::{raw, Raw};
 
 #[inline]
-fn octo(data: &str) -> &str {
+pub(crate) fn octo(data: &str) -> &str {
     if !data.starts_with('#') {
         "#"
     } else {

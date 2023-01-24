@@ -1,5 +1,18 @@
 use super::Capability;
 
+/// This allows you to initialize the registration handshake with the server
+///
+/// You must provide a name and an associated chat `OAuth` token to send messages to Twitch
+/// If you just want to read messages, then the [`ANONYMOUS_LOGIN`](crate::ANONYMOUS_LOGIN) tuple is provided.
+///
+/// # Capabilities
+/// These request Twitch enable more features for your user agent.
+///
+/// - To get tags, use the [`Capability::Tags`] request
+/// - To see joins/parts of users, use the [`Capability::Membership`] request
+/// - To send messages (PRIVMSG), use the [`Capability::Commands`] request
+///
+/// You can use [ALL_CAPABILITIES](crate::encode::ALL_CAPABILITIES) to request all of these
 pub const fn register<'a, const N: usize>(
     name: &'a str,
     oauth: &'a str,
@@ -8,7 +21,8 @@ pub const fn register<'a, const N: usize>(
     Register { name, oauth, caps }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`register`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Register<'a, const N: usize> {
     name: &'a str,
     oauth: &'a str,

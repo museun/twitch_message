@@ -3,10 +3,16 @@
 //! This crate does not provide any I/O rather just parsing of a `&str` into typed messages.
 //!
 //! A quick walkthrough:
-//! ```ignore
-//! use twitch_messages::messages::*;
-//! let data: &'a str = read_line();
-//! let msg: Message<'a> = twitch_messages::parse(data).unwrap();
+//! ```rust
+//! # fn read_line() -> &'static str { ":museun!museun@museun PRIVMSG #museun :hello world\r\n"}
+//! use twitch_message::messages::*;
+//! // get some data from somewhere
+//! let data: &str = read_line();
+//!
+//! // parse returns a `ParseResult` which contains the remaining data (if any) and the parsed message
+//! let result = twitch_message::parse(data).unwrap();
+//! let msg: Message<'_> = result.message;
+//!
 //! match msg.kind {
 //!     MessageKind::Ready => {
 //!         let ready = msg.as_typed_message::<Ready>().unwrap();
@@ -22,8 +28,13 @@
 //!     }
 //!     MessageKind::Ping => {
 //!         let ping = msg.as_typed_message::<Ping>().unwrap();
-//!         let resp = twitch_messages::encode::pong(&ping.token);
-//!         io_sink.encode_msg(resp).unwrap();
+//!         let resp = twitch_message::encode::pong(&ping.token);
+//!
+//!         // you can format data to various 'sinks'
+//!         use twitch_message::encode::Formattable;
+//!         let mut out = String::new();
+//!         resp.format(&mut out).unwrap();
+//!         assert_eq!(out, "PONG :1234567890\r\n");
 //!     }
 //!     _ => {}
 //! }
@@ -31,23 +42,23 @@
 //!
 //! # Parsing
 //! ### There are various *parse* methods provided by this crate:
-//! - [`fn@parse`]
+//! - [`parse`](fn@parse)
 //!
 //! This will parse a single message, returning any remaining data
 //!
-//! - [`fn@parse_many`]
+//! - [`parse_many`]
 //!
-//! This will return an iterator over possibly message messages in the data
+//! This will return an iterator over possibly many messages in the data
 //!
-//! - [`fn@parse_as`]
+//! - [`parse_as`]
 //!
-//! This is a shorthand for [`fn@parse`] + [`Message::as_typed_message()`](crate::messages::Message::as_typed_message())
+//! This is a shorthand for [`parse`](fn@parse) + [`Message::as_typed_message()`](crate::messages::Message::as_typed_message())
 //!
-//! - [`fn@parse_badges`]
+//! - [`parse_badges`]
 //!
 //! This allows you to parse ***badges*** from a string
 //!
-//! - [`fn@parse_emotes`]
+//! - [`parse_emotes`]
 //!
 //! This allows you to parse ***emotes*** from a Twitch emote string + the associated data portion
 //!
@@ -71,6 +82,8 @@
 //!
 //! This trait is implemented for all of the types. Once you import it, you can do `ty.into_static()` to get a `'static` version of the type.
 //!
+//! Why this trait instead of [`std::borrow::ToOwned`]? This trait allows more specific lifetime clauses and doesn't require `T: Clone`. But in general, its basically used the same way.
+//!
 //! # Builders
 //! A few builders are provided:
 //! - [`PrivmsgBuilder`](crate::builders::PrivmsgBuilder)
@@ -81,7 +94,7 @@
 //! # Encoding
 //! The [`encode`] module provides a typed way of constructing messages to send to Twitch.
 //!
-//! By default, only encoding to a [`core::fmt::Write`] source (e.g. a `String`) is support, via the [`Format`](crate::encode::Format) and [`Formattable`](crate::encode::Formattable) traits.
+//! By default, only encoding to a [`core::fmt::Write`] source (e.g. a `String`) is supported, via the [`Format`](crate::encode::Format) and [`Formattable`](crate::encode::Formattable) traits.
 //!
 //! If you enable the `std` feature (see [features](#features)), you will have access to the [`Encode`](crate::encode::Encode) and [`Encodable`](crate::encode::Encodable) traits which operate on a [`std::io::Write`] source. (e.g. a [`Vec<u8>`] or [`std::net::TcpStream`])
 //!
@@ -105,7 +118,7 @@
 //! ```
 //!
 //! #### Encode/Encodable
-//! ```rust
+//! ```rust,ignore
 //! // this adds the # to the channel, if its missing
 //! let pm = twitch_message::encode::privmsg("museun", "hello, world.");
 //!
@@ -129,7 +142,7 @@
 //! |ping | enables the [`PingTracker`] |
 //! |std | enables the [`Encode`](crate::encode::Encode) and [`Encodable`](crate::encode::Encodable) traits |
 //! |serde | enables [`serde`] derives on the types |
-//! |hashbrown | enables using [`hashbrown`] for the internal `HashMaps` |
+//! |hashbrown | enables using [`hashbrown`] for the internal `HashMap` |
 //! |sync | enables using [`std::sync::Mutex`] over [`std::cell::RefCell`] see [`sharing data`](#sharing-data) |
 //! |parking_lot | same as `sync` except uses a [`parking_lot::Mutex`] |
 //!
@@ -139,33 +152,11 @@
 //! A `PingTracker` is provided, and is entirely optional (enabled with the `ping` feature).
 //!
 //! This is a simple type to help you determine when you should respond to a `PING` message.
-//! ```ignore
-//! // create a new tracker, the `threshold` is used to determine when a connection is dead/stale.
-//! let pt = PingTracker::new(std::time::Duration::from_secs(10 * 60));
-//!
-//! // in some loop
-//! // if its been a while (such as if you have a way to keep track of time)
-//! if pt.probably_timed_out() {
-//!     // we should reconnect
-//!     return;
-//! }
-//!
-//! // this might block for a while
-//! let msg = read_message();
-//! // update the tracker
-//! pt.update(&msg);
-//!
-//! // check to see if you should reply.
-//! // this returns a message you can write to your sink
-//! if let Some(pong) = pt.should_pong() {
-//!     io_sink.encode_msg(pong).unwrap();
-//! }
-//! ```
 //!
 //! ## Tag (un)escaping
 //! IRCv3 requires tags to be [escaped](https://ircv3.net/specs/extensions/message-tags.html#escaping-values).
 //!
-//! This crate provides a method to [escape them](crate::escape::escape_tag), and to [unescape them](crate::escape::unescape_tag).
+//! This crate provides a method to [`escape them`](crate::escape::escape_tag), and to [`unescape them`](crate::escape::unescape_tag).
 //!
 //! *NOTE* You don't have to worry about the escape-status of [`Tags`], interally these are used.
 //!
@@ -209,8 +200,6 @@ pub use parse::{parse, parse_as, parse_many, ParseResult};
 mod into_static;
 pub use into_static::IntoStatic;
 
-pub mod owned;
-
 pub mod encode;
 
 mod badges;
@@ -220,6 +209,7 @@ mod emotes;
 pub use emotes::{parse_emotes, Emote};
 
 pub mod builders {
+    //! Builders for constructing your own types.
     pub use crate::message::{PrivmsgBuilder, PrivmsgBuilderError};
     pub use crate::tags::TagsBuilder;
 }
@@ -231,14 +221,21 @@ pub use ping_tracker::PingTracker;
 
 mod lock;
 
+/// The Twitch IRC (tcp) address
 pub const TWITCH_IRC_ADDRESS: &str = "irc.chat.twitch.tv:6667";
+
+/// The Twitch IRC (tcp/tls) address
 pub const TWITCH_IRC_ADDRESS_TLS: &str = "irc.chat.twitch.tv:6697";
 
+/// The Twitch WebSocket address
 pub const TWITCH_WS_ADDRESS: &str = "ws://irc-ws.chat.twitch.tv:80";
+/// The Twitch WebSocket TLS address
 pub const TWITCH_WS_ADDRESS_TLS: &str = "wss://irc-ws.chat.twitch.tv:443";
 
+/// The TLS domain for Twitch
 pub const TWITCH_TLS_DOMAIN: &str = "irc.chat.twitch.tv";
 
+/// An anonymous login. This'll allow you to read messages without an `OAuth` token
 pub const ANONYMOUS_LOGIN: (&str, &str) = (JUSTINFAN1234, JUSTINFAN1234);
 pub(crate) const JUSTINFAN1234: &str = "justinfan1234";
 

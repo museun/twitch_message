@@ -2,6 +2,9 @@ use std::borrow::Cow;
 
 use crate::{messages::*, HashMap, Prefix, Tags};
 
+/// A trait for converting a T: 'a to a T: 'static
+///
+/// This is used for going from a [`Message<'a>`](crate::messages::Message) to a `Message<'static>` or any of the sub types (see [`messages`](crate::messages))
 pub trait IntoStatic {
     type Output: 'static;
     fn into_static(self) -> Self::Output;
@@ -32,28 +35,6 @@ where
 
     fn into_static(self) -> Self::Output {
         self.clone().into_static()
-    }
-}
-
-impl<'a> IntoStatic for Cow<'a, Tags<'a>> {
-    type Output = Cow<'static, Tags<'static>>;
-
-    fn into_static(self) -> Self::Output {
-        match self {
-            Cow::Borrowed(s) => Cow::Owned(s.into_static()),
-            Cow::Owned(s) => Cow::Owned(s.into_static()),
-        }
-    }
-}
-
-impl<'a> IntoStatic for Cow<'a, Message<'a>> {
-    type Output = Cow<'static, Message<'static>>;
-
-    fn into_static(self) -> Self::Output {
-        match self {
-            Cow::Borrowed(s) => Cow::Owned(s.into_static()),
-            Cow::Owned(s) => Cow::Owned(s.into_static()),
-        }
     }
 }
 

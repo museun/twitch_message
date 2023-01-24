@@ -1,9 +1,7 @@
 use std::borrow::Cow;
 
 use super::{Message, Prefix, Tags, UserType};
-use crate::{
-    badges::badges_from_tags, emotes::emotes_from_tags, parse_badges, Badge, Color, Emote,
-};
+use crate::{builders::PrivmsgBuilder, parse_badges, Badge, Color, Emote};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
@@ -24,11 +22,11 @@ impl<'a> Privmsg<'a> {
     }
 
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
-        badges_from_tags(&self.tags)
+        Badge::from_tags(&self.tags)
     }
 
     pub fn emotes<'t: 'a>(&'t self) -> impl Iterator<Item = Emote<'a>> + 't {
-        emotes_from_tags(&self.tags, &self.data)
+        Emote::from_tags(&self.tags, &self.data)
     }
 
     pub fn bits(&self) -> Option<usize> {
@@ -130,6 +128,10 @@ impl<'a> Privmsg<'a> {
 
     pub fn is_from_admin(&self) -> bool {
         self.badges().any(|badge| badge.name == "admin")
+    }
+
+    pub fn builder() -> PrivmsgBuilder {
+        PrivmsgBuilder::default()
     }
 }
 

@@ -1,5 +1,6 @@
 use core::fmt::Write;
 
+/// A trait to format a type onto this [`core::fmt::Write`]
 pub trait Format: Write {
     fn format_msg(&mut self, msg: impl Formattable) -> core::fmt::Result {
         msg.format(self)
@@ -8,6 +9,7 @@ pub trait Format: Write {
 
 impl<T> Format for T where T: Write {}
 
+/// A trait for formatting a message with [`core::fmt::Write`]
 pub trait Formattable {
     fn format(&self, fmt: impl Write) -> core::fmt::Result;
 }

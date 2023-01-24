@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{badges::badges_from_tags, emotes::emotes_from_tags, Badge, Color, Emote};
+use crate::{Badge, Color, Emote};
 
 use super::{Message, Prefix, Tags, UserType};
 
@@ -16,7 +16,7 @@ pub struct Whisper<'a> {
 
 impl<'a> Whisper<'a> {
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
-        badges_from_tags(&self.tags)
+        Badge::from_tags(&self.tags)
     }
 
     pub fn color(&self) -> Option<Color> {
@@ -28,7 +28,7 @@ impl<'a> Whisper<'a> {
     }
 
     pub fn emotes<'t: 'a>(&'t self) -> impl Iterator<Item = Emote<'a>> + 't {
-        emotes_from_tags(&self.tags, &self.data)
+        Emote::from_tags(&self.tags, &self.data)
     }
 
     pub fn msg_id(&self) -> Option<&str> {

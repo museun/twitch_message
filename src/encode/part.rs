@@ -1,10 +1,14 @@
 use super::octo;
 
+/// Leave a channel
+///
+/// This prepends a '#' if you forget to
 pub const fn part(channel: &str) -> Part<'_> {
     Part { channel }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`part`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Part<'a> {
     channel: &'a str,
 }

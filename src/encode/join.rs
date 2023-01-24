@@ -1,10 +1,14 @@
 use super::octo;
 
+/// Join a channel
+///
+/// This prepends a '#' if you forget to
 pub const fn join(channel: &str) -> Join<'_> {
     Join { channel }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`join`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Join<'a> {
     channel: &'a str,
 }

@@ -1,10 +1,16 @@
+/// Errors produced by this crate
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum Error {
+    /// The message was malformed
     MalformedMessage,
+    /// The numeric was invalid
     InvalidNumeric,
+    /// Converting a type failed its type assertion
     IncorrectMessageType {
+        /// Expected this type
         expected: &'static str,
+        /// Got this type
         got: &'static str,
     },
 }

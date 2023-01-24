@@ -1,8 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{
-    badges::badges_from_tags, emotes::emotes_from_tags, parse_badges, Badge, Color, Emote, Tags,
-};
+use crate::{parse_badges, Badge, Color, Emote, Tags};
 
 use super::{Message, UserType};
 
@@ -24,13 +22,13 @@ impl<'a> UserNotice<'a> {
     }
 
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
-        badges_from_tags(&self.tags)
+        Badge::from_tags(&self.tags)
     }
 
     pub fn emotes<'t: 'a>(&'t self) -> impl Iterator<Item = Emote<'a>> + 't {
         self.data
             .iter()
-            .flat_map(|data| emotes_from_tags(&self.tags, data))
+            .flat_map(|data| Emote::from_tags(&self.tags, data))
     }
 
     pub fn color(&self) -> Option<Color> {

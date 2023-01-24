@@ -1,8 +1,12 @@
+/// Construct a PONG message, these are used to respond to a Ping
+///
+/// A Ping message gives you a token which you should provide to this.
 pub const fn pong(token: &str) -> Pong<'_> {
     Pong { token }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`pong`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Pong<'a> {
     token: &'a str,
 }

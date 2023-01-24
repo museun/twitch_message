@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{badges::badges_from_tags, parse_badges, Badge, Color};
+use crate::{parse_badges, Badge, Color};
 
 use super::{Message, Tags, UserType};
 
@@ -20,7 +20,7 @@ impl<'a> UserState<'a> {
     }
 
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
-        badges_from_tags(&self.tags)
+        Badge::from_tags(&self.tags)
     }
 
     pub fn color(&self) -> Option<Color> {

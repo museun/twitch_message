@@ -1,8 +1,10 @@
+/// Constructs a PING the server should reply to
 pub const fn ping(token: &str) -> Ping<'_> {
     Ping { token }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`ping`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Ping<'a> {
     token: &'a str,
 }

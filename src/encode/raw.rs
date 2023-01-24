@@ -1,8 +1,10 @@
+/// Send a raw message to the server
 pub const fn raw(raw: &str) -> Raw<'_> {
     Raw { raw }
 }
 
-#[derive(Copy, Clone, Debug)]
+/// The type produced by [`raw`]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Raw<'a> {
     raw: &'a str,
 }

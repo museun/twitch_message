@@ -137,12 +137,13 @@ impl std::error::Error for PrivmsgBuilderError {
 ///
 /// let expected = ":shaken_bot!shaken_bot@shaken_bot.tmi.twitch.tv PRIVMSG #museun :~ Kappa\r\n";
 ///
-/// let msg: Message<'_> = builder.clone().finish_message().unwrap();
+/// let msg: Message<'_> = builder.clone().finish_message()?;
 /// assert_eq!(msg.raw, expected);
 /// assert_eq!(msg.kind, MessageKind::Privmsg);
 ///
-/// let pm: Privmsg<'_> = builder.finish_privmsg().unwrap();
-/// assert_eq!(pm.raw, expected)
+/// let pm: Privmsg<'_> = builder.finish_privmsg()?;
+/// assert_eq!(pm.raw, expected);
+/// # Ok::<(),Box<dyn std::error::Error>>(())
 /// ```
 #[derive(Default, Clone)]
 pub struct PrivmsgBuilder {

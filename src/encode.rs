@@ -27,10 +27,11 @@
 //! let vohiyo = privmsg("museun", "VoHiYo");
 //!
 //! let mut buf = String::new();
-//! KAPPA.format(&mut buf).unwrap();
-//! buf.format_msg(vohiyo).unwrap();
+//! KAPPA.format(&mut buf)?;
+//! buf.format_msg(vohiyo)?;
 //!
-//! assert_eq!(buf, "PRIVMSG #museun :Kappa\r\nPRIVMSG #museun :VoHiYo\r\n")
+//! assert_eq!(buf, "PRIVMSG #museun :Kappa\r\nPRIVMSG #museun :VoHiYo\r\n");
+//! # Ok::<(),Box<dyn std::error::Error>>(())
 //! ```
 
 #[cfg(feature = "std")]

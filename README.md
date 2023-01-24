@@ -16,7 +16,7 @@ use twitch_message::messages::*;
 let data: &str = read_line();
 
 // parse returns a `ParseResult` which contains the remaining data (if any) and the parsed message
-let result = twitch_message::parse(data).unwrap();
+let result = twitch_message::parse(data)?;
 let msg: Message<'_> = result.message;
 
 match msg.kind {
@@ -39,7 +39,7 @@ match msg.kind {
         // you can format data to various 'sinks'
         use twitch_message::encode::Formattable;
         let mut out = String::new();
-        resp.format(&mut out).unwrap();
+        resp.format(&mut out)?;
         assert_eq!(out, "PONG :1234567890\r\n");
     }
     _ => {}
@@ -59,13 +59,13 @@ let pm = twitch_message::encode::privmsg("museun", "hello, world.");
 // using `Formattable`
 use twitch_message::encode::Formattable;
 let mut buf = String::new();
-pm.format(&mut buf).unwrap();
+pm.format(&mut buf)?;
 assert_eq!(buf, "PRIVMSG #museun :hello, world.\r\n");
 
 // using `Format`
 use twitch_message::encode::Format;
 let mut buf = String::new();
-buf.format_msg(pm);
+buf.format_msg(pm)?;
 assert_eq!(buf, "PRIVMSG #museun :hello, world.\r\n");
 ```
 
@@ -78,13 +78,13 @@ let pm = twitch_message::encode::privmsg("museun", "hello, world.");
 // using `Encodable`
 use twitch_message::encode::Encodable;
 let mut buf = Vec::new();
-pm.encode(&mut buf).unwrap();
+pm.encode(&mut buf)?;
 assert_eq!(buf, b"PRIVMSG #museun :hello, world.\r\n");
 
 // using `Encode`
 use twitch_message::encode::Encode;
 let mut buf = Vec::new();
-buf.encode_msg(pm);
+buf.encode_msg(pm)?;
 assert_eq!(buf, b"PRIVMSG #museun :hello, world.\r\n");
 ```
 

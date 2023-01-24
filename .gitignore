@@ -1,4 +1,6 @@
 /target
 /Cargo.lock
-*.env
+!/examples/.example.env
+.dev.env
+.secrets.env
 *.log

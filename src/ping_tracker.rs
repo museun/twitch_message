@@ -25,7 +25,7 @@ use crate::{
 /// // if its been a while (such as if you have a way to keep track of time)
 /// if pt.probably_timed_out() {
 ///     // we should reconnect
-///     return;
+///     return Err("timed out".into());
 /// }
 ///
 /// // this might block for a while
@@ -36,8 +36,9 @@ use crate::{
 /// // check to see if you should reply.
 /// // this returns a message you can write to your sink
 /// if let Some(pong) = pt.should_pong() {
-///     io_sink.encode_msg(pong).unwrap();
+///     io_sink.encode_msg(pong)?;
 /// }
+/// # Ok::<(),Box<dyn std::error::Error>>(())
 /// ```
 pub struct PingTracker {
     threshold: Duration,

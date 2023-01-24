@@ -2,19 +2,23 @@
 ///
 /// # Examples
 /// ### Parsing:
+///
 /// ```rust
 /// # use twitch_message::Color;
 /// # use std::str::FromStr;
-/// let color: Color = "#ff00ff".parse().unwrap();
+/// let color: Color = "#ff00ff".parse()?;
 /// assert_eq!(color, Color(0xFF, 0x00, 0xFF));
 ///
-/// let color: Color = "abcdef".parse().unwrap();
+/// let color: Color = "abcdef".parse()?;
 /// assert_eq!(color, Color(0xAB, 0xCD, 0xEF));
 ///
-/// let color: Color = Color::from_str("123456").unwrap();
+/// let color: Color = Color::from_str("123456")?;
 /// assert_eq!(color, Color(0x12, 0x34, 0x56));
+/// # Ok::<(),Box<dyn std::error::Error>>(())
 /// ```
+///
 /// ### Formatting:
+///
 /// ```rust
 /// # use twitch_message::Color;
 /// let color = Color(0xDF, 0x12, 0x34);

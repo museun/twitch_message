@@ -27,16 +27,17 @@ where
 /// # use twitch_message::{parse, ParseResult};
 /// let mut raw_line = ":tmi.twitch.tv PING :12345\r\n:tmi.twitch.tv PING :12346\r\n:tmi.twitch.tv PING :12347\r\n";
 ///
-/// let res = parse(raw_line).unwrap();
+/// let res = parse(raw_line)?;
 /// assert_eq!(res.remaining, ":tmi.twitch.tv PING :12346\r\n:tmi.twitch.tv PING :12347\r\n");
 /// raw_line = res.remaining;
 ///
-/// let res = parse(raw_line).unwrap();
+/// let res = parse(raw_line)?;
 /// assert_eq!(res.remaining, ":tmi.twitch.tv PING :12347\r\n");
 /// raw_line = res.remaining;
 ///
-/// let res = parse(raw_line).unwrap();
+/// let res = parse(raw_line)?;
 /// assert_eq!(res.remaining, "");
+/// # Ok::<(),Box<dyn std::error::Error>>(())
 /// ```
 ///
 /// # NOTE

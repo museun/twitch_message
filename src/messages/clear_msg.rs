@@ -2,28 +2,37 @@ use std::borrow::Cow;
 
 use super::{Message, Tags};
 
+/// [`CLEARMSG`](https://dev.twitch.tv/docs/irc/commands/#clearmsg) command. Sent when a bot or user with moderator privileges deletes a single message from the chat room.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct ClearMsg<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
+    /// The channel where the `CLEARMSG` was sent
     pub channel: Cow<'a, str>,
+    /// The chat message that was deleted
     pub message: Cow<'a, str>,
+    /// Metadata attached to the command
     pub tags: Tags<'a>,
 }
 
 impl<'a> ClearMsg<'a> {
+    /// The name of the user who sent the message.
     pub fn login(&self) -> Option<&str> {
         self.tags.get("login")
     }
 
+    /// The ID of the channel (chat room) where the message was removed from.
     pub fn room_id(&self) -> Option<&str> {
         self.tags.get("room-id")
     }
 
+    /// A UUID that identifies the message that was removed.
     pub fn target_msg_id(&self) -> Option<&str> {
         self.tags.get("target-msg-id")
     }
 
+    /// The UNIX timestamp.
     pub fn tmi_sent_ts(&self) -> Option<&str> {
         self.tags.get("tmi-sent-ts")
     }

@@ -7,14 +7,23 @@ use crate::{
     Error, IntoStatic, Parse, Prefix, Tags,
 };
 
+/// A twitch chat message.
+///
+/// See [`parse`](fn@crate::parse)
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Message<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
+    /// Metadata embedded in the message
     pub tags: Tags<'a>,
+    /// IRC-styled prefix
     pub prefix: Prefix<'a>,
+    /// The kind of message
     pub kind: MessageKind<'a>,
+    /// Arguments for the message kind
     pub args: Vec<Cow<'a, str>>,
+    /// Data attached to the message
     pub data: Option<Cow<'a, str>>,
 }
 
@@ -31,6 +40,18 @@ impl<'a> Message<'a>
 where
     'static: 'a,
 {
+    /// Convert this message to a typed message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use twitch_message::messages::*;
+    /// let data = ":museun!museun@museun PRIVMSG #museun :hello world\r\n";
+    /// let message = twitch_message::parse(data)?.message;
+    ///
+    /// let privmsg = message.as_typed_message::<Privmsg>().expect("invalid message");
+    /// # Ok::<(),Box<dyn std::error::Error>>(())
+    /// ```
     pub fn as_typed_message<T>(&self) -> Option<T>
     where
         T: TypedMessageMarker<'a>,
@@ -44,6 +65,18 @@ where
 }
 
 impl Message<'static> {
+    /// Convert this message into an owned typed message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use twitch_message::messages::*;
+    /// let data = ":museun!museun@museun PRIVMSG #museun :hello world\r\n";
+    /// let message = twitch_message::parse(data)?.message;
+    ///
+    /// let privmsg = message.into_typed_message::<Privmsg>().expect("invalid message");
+    /// # Ok::<(),Box<dyn std::error::Error>>(())
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn into_typed_message<T>(self) -> Result<<T as IntoStatic>::Output, Message<'static>>
     where
@@ -100,11 +133,15 @@ impl<'a> Parse<'a> for Message<'a> {
     }
 }
 
+/// Errors for [`PrivmsgBuilder::finish_privmsg`] and [`PrivmsgBuilder::finish_message`]
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum PrivmsgBuilderError {
+    /// No sender specified
     MissingSender,
+    /// No channel specified
     MissingChannel,
+    /// Missing data
     MissingData,
 }
 

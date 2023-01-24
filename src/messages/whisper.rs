@@ -4,49 +4,64 @@ use crate::{Badge, Color, Emote};
 
 use super::{Message, Prefix, Tags, UserType};
 
+/// Sent when a `WHISPER` message is directed specifically to the connected user.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Whisper<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
+    /// The user that’s sending the whisper message.
     pub from_user: Cow<'a, str>,
+    /// The user that’s receiving the whisper message.
     pub to_user: Cow<'a, str>,
+    /// The text of the whisper
     pub data: Cow<'a, str>,
+    /// Metadata attached to the message
     pub tags: Tags<'a>,
 }
 
 impl<'a> Whisper<'a> {
+    /// Global Badges attached to the [`Self::from_user`].
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         Badge::from_tags(&self.tags)
     }
 
+    /// The color of the user’s name. This may be [`None`] if it is never set.
     pub fn color(&self) -> Option<Color> {
         self.tags.color()
     }
 
+    /// The user’s display name
     pub fn display_name(&self) -> Option<&str> {
         self.tags.get("display-name")
     }
 
+    /// Emotes in the message.
     pub fn emotes<'t: 'a>(&'t self) -> impl Iterator<Item = Emote<'a>> + 't {
         Emote::from_tags(&self.tags, &self.data)
     }
 
+    /// An ID that uniquely identifies the whisper message.
     pub fn msg_id(&self) -> Option<&str> {
         self.tags.get("message-id")
     }
 
+    /// An ID that uniquely identifies the whisper thread
     pub fn thread_id(&self) -> Option<&str> {
         self.tags.get("thread-id")
     }
 
+    /// The ID of the user sending the whisper message.
     pub fn user_id(&self) -> Option<&str> {
         self.tags.get("user-id")
     }
 
+    /// User has turbo
     pub fn is_turbo(&self) -> bool {
         self.tags.bool("turbo")
     }
 
+    /// The type of user sending the whisper message.
     pub fn user_type(&self) -> UserType {
         self.tags
             .get("user-type")

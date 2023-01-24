@@ -2,34 +2,43 @@ use std::borrow::Cow;
 
 use super::{Message, Tags};
 
+/// [`ROOMSTATE`](https://dev.twitch.tv/docs/irc/commands/#roomstate). Sent when the bot joins a channel or when the channel’s chat settings change.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct RoomState<'a> {
+    /// Metadata attached to the message
     pub tags: Tags<'a>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 
 impl<'a> RoomState<'a> {
+    /// Room is "emote" only
     pub fn emote_only(&self) -> bool {
         self.tags.bool("emote-only")
     }
 
+    /// Room is followers only. The value indicates how long, in minutes, the user must have followed the broadcaster before posting chat messages.
     pub fn followers_only(&self) -> Option<usize> {
         self.tags.parsed("followers-only")?.ok()
     }
 
+    /// Room is r9k/unique only
     pub fn r9k(&self) -> bool {
         self.tags.bool("r9k")
     }
 
+    /// An ID that identifies the chat room (channel).
     pub fn room_id(&self) -> Option<&str> {
         self.tags.get("room-id")
     }
 
+    /// Room is in slow mode. The value determines how long, in seconds, users must wait between sending messages.
     pub fn slow(&self) -> Option<usize> {
         self.tags.parsed("slow")?.ok()
     }
 
+    /// Room is subscribers and moderators only.
     pub fn subs_only(&self) -> bool {
         self.tags.bool("subs-only")
     }

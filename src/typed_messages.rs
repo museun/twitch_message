@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::{
     messages::{
         Capability, ClearChat, ClearMsg, GlobalUserState, HostTarget, IrcReady, Message,

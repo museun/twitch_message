@@ -2,10 +2,13 @@ use std::borrow::Cow;
 
 use super::Message;
 
+/// A 001 IRC-styled Ready
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct IrcReady<'a> {
+    /// The name of the connected user
     pub name: Cow<'a, str>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 

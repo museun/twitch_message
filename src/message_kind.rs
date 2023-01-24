@@ -6,23 +6,41 @@ use crate::{Error, Parse};
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum MessageKind<'a> {
+    /// [`Capability`](super::messages::Capability)
     Capability,
+    /// [`Ping`](super::messages::Ping)
     Ping,
+    /// [`Pong`](super::messages::Pong)
     Pong,
+    /// [`IrcReady`](super::messages::IrcReady)
     IrcReady,
+    /// [`Ready`](super::messages::Ready)
     Ready,
+    /// [`GlobalUserState`](super::messages::GlobalUserState)
     GlobalUserState,
+    /// [`UserState`](super::messages::UserState)
     UserState,
+    /// [`RoomState`](super::messages::RoomState)
     RoomState,
+    /// [`Privmsg`](super::messages::Privmsg)
     Privmsg,
+    /// [`ClearChat`](super::messages::ClearChat)
     ClearChat,
+    /// [`ClearMsg`](super::messages::ClearMsg)
     ClearMsg,
+    /// [`Notice`](super::messages::Notice)
     Notice,
+    /// [`HostTarget`](super::messages::HostTarget)
     HostTarget,
+    /// [`UserNotice`](super::messages::UserNotice)
     UserNotice,
+    /// [`Whisper`](super::messages::Whisper)
     Whisper,
+    /// [`Reconnect`](super::messages::Reconnect)
     Reconnect,
+    /// IRC Numeric
     Numeric(u16),
+    /// An unknown message kind
     Unknown(Cow<'a, str>),
 }
 

@@ -2,9 +2,11 @@ use std::borrow::Cow;
 
 use super::Message;
 
+/// [`RECONNECT`](https://dev.twitch.tv/docs/irc/commands/#reconnect). is sent when the Twitch IRC server needs to terminate the connection.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Reconnect<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 

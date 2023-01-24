@@ -2,10 +2,13 @@ use std::borrow::Cow;
 
 use super::Message;
 
+/// A TMI-styled ready, sent after [`IrcReady`](super::IrcReady)
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Ready<'a> {
+    /// The name of the connected user
     pub name: Cow<'a, str>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 

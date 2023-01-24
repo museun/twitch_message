@@ -1,19 +1,27 @@
+#![allow(deprecated)]
+
 use std::borrow::Cow;
 
 use crate::{parse_badges, Badge, Color, Emote, Tags};
 
 use super::{Message, UserType};
 
+/// [`USERNOTICE`](https://dev.twitch.tv/docs/irc/commands/#usernotice). Sent when events like someone subscribing to the channel occurs.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct UserNotice<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
+    /// Metadata attached to the message
     pub tags: Tags<'a>,
+    /// The name of the channel that the event occurred in.
     pub channel: Cow<'a, str>,
+    /// Data attached to the notice
     pub data: Option<Cow<'a, str>>,
 }
 
 impl<'a> UserNotice<'a> {
+    /// Contains metadata related to the chat badges in the [`badges`](Self::badges) tag.
     pub fn badge_info<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         self.tags
             .get("badge-info")
@@ -21,64 +29,80 @@ impl<'a> UserNotice<'a> {
             .flat_map(parse_badges)
     }
 
+    /// Badges attached to a user in a channel.
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         Badge::from_tags(&self.tags)
     }
 
+    /// Emotes in the message.
     pub fn emotes<'t: 'a>(&'t self) -> impl Iterator<Item = Emote<'a>> + 't {
         self.data
             .iter()
             .flat_map(|data| Emote::from_tags(&self.tags, data))
     }
 
+    /// The color of the user’s name in the chat room. This may be [`None`] if it is never set.
     pub fn color(&self) -> Option<Color> {
         self.tags.color()
     }
 
+    /// The user’s display name
     pub fn display_name(&self) -> Option<&str> {
         self.tags.get("display-name")
     }
 
+    /// The message Twitch shows in the chat room for this notice.
     pub fn system_msg(&self) -> Option<&str> {
         self.tags.get("system-msg")
     }
 
+    /// The user is a moderator in the channel.
     pub fn is_moderator(&self) -> bool {
         self.tags.bool("mod")
     }
 
+    /// The user is a subscriber of the channel.
     pub fn is_subscriber(&self) -> bool {
         self.tags.bool("subscriber")
     }
 
+    /// The user is a turbo user.
     pub fn is_turbo(&self) -> bool {
         self.tags.bool("turbo")
     }
 
+    /// The login name of the user whose action generated the message.
     pub fn login(&self) -> Option<&str> {
         self.tags.get("login")
     }
 
+    /// An ID that uniquely identifies this message.
     pub fn id(&self) -> Option<&str> {
         self.tags.get("id")
     }
 
+    /// The type of notice
     pub fn msg_id(&self) -> Option<UserNoticeId> {
         self.tags.get("msg-id").map(UserNoticeId::parse)
     }
 
+    /// An ID that identifies the chat room (channel).
     pub fn room_id(&self) -> Option<&str> {
         self.tags.get("room_id")
     }
+
+    /// The user’s ID.
 
     pub fn user_id(&self) -> Option<&str> {
         self.tags.get("user-id")
     }
 
+    /// The UNIX timestamp.
     pub fn tmi_sent_ts(&self) -> Option<&str> {
         self.tags.get("tmi-sent-ts")
     }
 
+    /// The user’s type.
     pub fn user_type(&self) -> UserType {
         self.tags
             .get("user-type")
@@ -86,10 +110,16 @@ impl<'a> UserNotice<'a> {
             .unwrap_or_default()
     }
 
+    /// The total number of months the user has subscribed.
+    ///
+    /// Included only with [`sub`](UserNoticeId::Sub) and [`resub`](UserNoticeId::Resub) notices
     pub fn msg_param_cumulative_months(&self) -> Option<&str> {
         self.tags.get("msg-param-cumulative-months")
     }
 
+    /// The display name of the broadcaster raiding this channel.
+    ///
+    /// Included only with [`raid`](UserNoticeId::Raid) notices
     pub fn msg_param_display_name(&self) -> Option<&str> {
         // XXX: docs have this in a weird casing, going to try the other as well.
         self.tags
@@ -97,89 +127,190 @@ impl<'a> UserNotice<'a> {
             .or_else(|| self.tags.get("msg-param-display-name"))
     }
 
+    /// The display name of the broadcaster raiding this channel.
+    ///
+    /// Included only with [`raid`](UserNoticeId::Raid) notices
     pub fn msg_param_login(&self) -> Option<&str> {
         self.tags.get("msg-param-login")
     }
 
+    /// The total number of months the user has subscribed.
+    ///
+    /// Included only with [`subgift`](UserNoticeId::Subgift) notices
+    ///
+    /// # See also
+    ///
+    /// [`msg-param-cumulative-months`](Self::msg_param_cumulative_months)
     pub fn msg_param_months(&self) -> Option<&str> {
         self.tags.get("msg-param-months")
     }
 
+    /// The number of gifts the gifter has given during the promo indicated by [`msg-param-promo-name`](Self::msg_param_promo_name)
+    ///
+    /// Included only with [`anongiftpaidupgrade`](UserNoticeId::AnonGiftPaidUpgrade) and [`giftpaidupgrade`](UserNoticeId::GiftPaidUpgrade) notices
     pub fn msg_param_promo_gift_total(&self) -> Option<&str> {
         self.tags.get("msg-param-promo-gift-total")
     }
 
+    /// The subscriptions promo, if any, that is ongoing (for example, Subtember 2018).
+    ///
+    /// Included only with [`anongiftpaidupgrade`](UserNoticeId::AnonGiftPaidUpgrade) and [`giftpaidupgrade`](UserNoticeId::GiftPaidUpgrade) notices
     pub fn msg_param_promo_name(&self) -> Option<&str> {
         self.tags.get("msg-param-promo-name")
     }
 
+    /// The display name of the subscription gift recipient.
+    ///
+    /// Included only with [`subgift`](UserNoticeId::Subgift) notices
     pub fn msg_param_recipient_display_name(&self) -> Option<&str> {
         self.tags.get("msg-param-recipient-display-name")
     }
 
+    /// The user ID of the subscription gift recipient.
+    ///
+    /// Included only with [`subgift`](UserNoticeId::Subgift) notices
     pub fn msg_param_recipient_id(&self) -> Option<&str> {
         self.tags.get("msg-param-recipient-id")
     }
 
+    /// The user name of the subscription gift recipient.
+    ///
+    /// Included only with [`subgift`](UserNoticeId::Subgift) notices
     pub fn msg_param_recipient_user_name(&self) -> Option<&str> {
         self.tags.get("msg-param-recipient-user-name")
     }
 
+    /// The login name of the user who gifted the subscription.
+    ///
+    /// Included only with [`giftpaidupgrade`](UserNoticeId::GiftPaidUpgrade) notices
     pub fn msg_param_sender_login(&self) -> Option<&str> {
         self.tags.get("msg-param-sender-login")
     }
 
+    /// The display name of the user who gifted the subscription.
+    ///
+    /// Included only with [`giftpaidupgrade`](UserNoticeId::GiftPaidUpgrade) notices
     pub fn msg_param_sender_name(&self) -> Option<&str> {
         self.tags.get("msg-param-sender-name")
     }
 
+    /// Indicates whether the user wants their streaks shared.
+    ///
+    /// Included only with [`sub`](UserNoticeId::Sub) and [`resub`](UserNoticeId::Resub) notices
     pub fn msg_param_should_share_streak(&self) -> Option<&str> {
         self.tags.get("msg-param-should-share-streak")
     }
 
+    /// The number of consecutive months the user has subscribed.
+    ///
+    /// Included only with [`sub`](UserNoticeId::Sub) and [`resub`](UserNoticeId::Resub) notices
     pub fn msg_param_streak_months(&self) -> Option<&str> {
         self.tags.get("msg-param-streak-months")
     }
 
+    /// The type of subscription plan being used.
+    ///
+    /// Included only with [`sub`](UserNoticeId::Sub), [`resub`](UserNoticeId::Resub) and [`subgift`](UserNoticeId::Subgift) notices
     pub fn msg_param_sub_plan(&self) -> Option<&str> {
         self.tags.get("msg-param-sub-plan")
     }
 
+    /// The display name of the subscription plan.
+    ///
+    /// Included only with [`sub`](UserNoticeId::Sub), [`resub`](UserNoticeId::Resub) and [`subgift`](UserNoticeId::Subgift) notices
     pub fn msg_param_sub_plan_name(&self) -> Option<&str> {
         self.tags.get("msg-param-sub-plan-name")
     }
 
+    /// The number of viewers raiding this channel from the broadcaster’s channel.
+    ///
+    /// Included only with [`raid`](UserNoticeId::Raid) notices
     pub fn msg_param_viewer_count(&self) -> Option<&str> {
         self.tags.get("msg-param-viewerCount")
     }
 
+    #[deprecated]
+    #[allow(missing_docs)]
     pub fn msg_param_ritual_name(&self) -> Option<&str> {
         self.tags.get("msg-param-ritual-name")
     }
 
+    /// The tier of the Bits badge the user just earned.
+    ///
+    /// Included only with [`bitsbadgetier`](UserNoticeId::BitsBadgeTier) notices
     pub fn msg_param_threshold(&self) -> Option<&str> {
         self.tags.get("msg-param-threshold")
     }
 
+    /// The number of months gifted as part of a single, multi-month gift.
+    ///
+    /// Included only with [`subgift`](UserNoticeId::Subgift) notices
     pub fn msg_param_gift_months(&self) -> Option<&str> {
         self.tags.get("msg-param-gift-months")
     }
+
+    /// The domain of the rewards being gifted (e.g. "pride_megacommerce_2020").
+    ///
+    /// Included only with [`rewardgift`](UserNoticeId::RewardGift) notices
+    pub fn msg_param_domain(&self) -> Option<&str> {
+        self.tags.get("msg-param-domain")
+    }
+
+    /// The type of monetary event that triggered the reward gift (e.g., "SUBGIFT", "CHEER").
+    ///
+    /// Included only with [`rewardgift`](UserNoticeId::RewardGift) notices
+    pub fn msg_param_trigger_type(&self) -> Option<&str> {
+        self.tags.get("msg-param-trigger-type")
+    }
+
+    /// The number of gifted rewards as part of the primary selection.
+    ///
+    /// Included only with [`rewardgift`](UserNoticeId::RewardGift) notices
+    pub fn msg_param_selected_count(&self) -> Option<&str> {
+        self.tags.get("msg-param-selected-count")
+    }
+    /// The total number of rewards being gifted (e.g. 5 emotes).
+    ///
+    /// Included only with [`rewardgift`](UserNoticeId::RewardGift) notices
+    pub fn msg_param_total_reward_count(&self) -> Option<&str> {
+        self.tags.get("msg-param-total-reward-count")
+    }
+    /// The number of instances of the trigger (e.g. 1 sub gift or 300 bits).
+    ///
+    /// Included only with [`rewardgift`](UserNoticeId::RewardGift) notices
+    pub fn msg_param_trigger_amount(&self) -> Option<&str> {
+        self.tags.get("msg-param-trigger-amount")
+    }
 }
 
+/// The type of notice
 #[derive(Copy, Clone, Default, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum UserNoticeId {
+    /// A subscription event
     Sub,
+    /// A resubscription event
     Resub,
+    /// A gift subscription event
     Subgift,
+    /// A mass subscription event occurs.
     SubMysteryGift,
+    /// A gifted subscription is continued
     GiftPaidUpgrade,
+    /// Monetary event triggered emotes to be shared
     RewardGift,
+    /// A gifted subscription from an anonymous user is continued
     AnonGiftPaidUpgrade,
+    /// A raid happens
     Raid,
+    /// A raid from the channel to another is cancelled.
     Unraid,
+    #[allow(missing_docs)]
+    #[deprecated]
     Ritual,
+    /// A user shares a new bits badge
     BitsBadgeTier,
+    /// Unknown notice
     #[default]
     Unknown,
 }

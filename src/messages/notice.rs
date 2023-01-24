@@ -1,13 +1,20 @@
+#![allow(missing_docs, deprecated)]
 use std::borrow::Cow;
 
 use super::{Message, Tags};
 
+/// [`NOTICE`](https://dev.twitch.tv/docs/irc/commands/#notice) Sent to indicate the outcome of an action like banning a user.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+#[deprecated(
+    note = "twitch has deprecated chat commands through irc, see https://discuss.dev.twitch.tv/t/deprecation-of-chat-commands-through-irc/40486 "
+)]
 pub struct Notice<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
     pub channel: Cow<'a, str>,
     pub message: Cow<'a, str>,
+    /// Metadata attached to the message
     pub tags: Tags<'a>,
 }
 

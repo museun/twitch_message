@@ -31,7 +31,9 @@ impl<'a> Emote<'a> {
     ///     assert_eq!(expected[i], emote);
     /// }
     /// ```
+    ///
     /// ## See also
+    ///
     /// Parsing from a string, such as from `tags.get("emotes")`, you can use [`parse_emotes`]
     pub fn from_tags<'t: 'a>(
         tags: &'t Tags<'a>,

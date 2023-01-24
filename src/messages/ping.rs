@@ -2,10 +2,13 @@ use std::borrow::Cow;
 
 use super::Message;
 
+/// Tests the presence of a connection. A [PING](Self) message results in a [PONG](crate::encode::Pong) reply.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Ping<'a> {
+    /// Token associated with the ping that the resulting [`Pong`](crate::encode::Pong) should reflect
     pub token: Cow<'a, str>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 

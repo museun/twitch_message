@@ -78,7 +78,10 @@ pub fn deny() {
         .map(|o| o.status.success())
         .unwrap_or(false)
     {
-        assert!(cargo(["deny", "check"]).status().unwrap().success());
+        assert!(cargo(["deny", "--all-features", "check"])
+            .status()
+            .unwrap()
+            .success());
     }
 }
 

@@ -11,7 +11,7 @@ use crate::{builders::PrivmsgBuilder, parse_badges, Badge, Color, Emote};
 pub struct Privmsg<'a> {
     /// The channel this message was sent to. Prefixed with a `#`
     pub channel: Cow<'a, str>,
-    /// The author of the channel
+    /// The author of the message
     pub sender: Cow<'a, str>,
     /// Metadata attached to the message
     pub tags: Tags<'a>,

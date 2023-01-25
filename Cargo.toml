@@ -37,3 +37,6 @@ required-features = ["std", "ping"]
 
 [dev-dependencies]
 simple_env_load = "0.2.0"
+
+[workspace]
+members = ["xtask"]

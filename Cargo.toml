@@ -16,7 +16,6 @@ parking_lot = { version = "0.12.1", optional = true }
 serde       = { version = "1.0.152", features = ["derive"], optional = true }
 
 [features]
-default     = ["std", "ping"]
 sync        = []
 ping        = []
 std         = ["ping"]
@@ -30,6 +29,10 @@ all-features = true
 
 [[example]]
 name = "simple"
+required-features = ["std", "ping"]
+
+[[example]]
+name = "bot"
 required-features = ["std", "ping"]
 
 [dev-dependencies]

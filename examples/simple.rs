@@ -65,7 +65,7 @@ fn main() {
     }
 }
 
-fn read_message<'a>(buf: &'a mut String, mut read: impl std::io::BufRead + Sized) -> Message<'a> {
+fn read_message(buf: &mut String, mut read: impl std::io::BufRead + Sized) -> Message<'_> {
     // clear the buffer
     buf.clear();
 

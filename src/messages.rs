@@ -1,3 +1,4 @@
+//! Messages
 use super::{Prefix, Tags};
 
 pub use super::{message::Message, message_kind::MessageKind};
@@ -36,9 +37,11 @@ mod clear_msg;
 pub use clear_msg::ClearMsg;
 
 mod notice;
+#[allow(deprecated)]
 pub use notice::{Notice, NoticeKind};
 
 mod host_target;
+#[allow(deprecated)]
 pub use host_target::{HostMode, HostTarget};
 
 mod whisper;

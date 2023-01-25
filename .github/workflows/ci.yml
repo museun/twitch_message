@@ -31,6 +31,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test
       - run: cargo test --all-targets --all-features --workspace
+      - run: cargo doc --no-deps --all-features
   clippy:
     name: Clippy
     runs-on: ubuntu-latest

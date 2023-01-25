@@ -4,14 +4,18 @@ use crate::{parse_badges, Badge, Color};
 
 use super::{Message, Tags, UserType};
 
+/// State received after joining a channel or sending a [`Privmsg`](crate::encode::Privmsg)
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct UserState<'a> {
+    /// Metadata attached to the message
     pub tags: Tags<'a>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 
 impl<'a> UserState<'a> {
+    /// Contains metadata related to the chat badges in the [`badges`](Self::badges) tag.
     pub fn badge_info<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         self.tags
             .get("badge-info")
@@ -19,34 +23,43 @@ impl<'a> UserState<'a> {
             .flat_map(parse_badges)
     }
 
+    /// Badges attached to a user in a channel.
+    /// Badges attached to a user in a channel.
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         Badge::from_tags(&self.tags)
     }
 
+    /// The color of the user’s name in the chat room. This may be [`None`] if it is never set.
     pub fn color(&self) -> Option<Color> {
         self.tags.color()
     }
 
+    /// The user’s display name
     pub fn display_name(&self) -> Option<&str> {
         self.tags.get("display-name")
     }
 
+    /// An ID that uniquely identifies the message.
     pub fn msg_id(&self) -> Option<&str> {
         self.tags.get("id")
     }
 
+    /// The user is a moderator in the channel
     pub fn is_moderator(&self) -> bool {
         self.tags.bool("mod")
     }
 
+    /// The user is a subscriber of the channel
     pub fn is_subscriber(&self) -> bool {
         self.tags.bool("subscriber")
     }
 
+    /// The user has turbo.
     pub fn is_turbo(&self) -> bool {
         self.tags.bool("turbo")
     }
 
+    /// The user’s type.
     pub fn user_type(&self) -> UserType {
         self.tags
             .get("user-type")
@@ -54,6 +67,7 @@ impl<'a> UserState<'a> {
             .unwrap_or_default()
     }
 
+    /// A comma-delimited list of IDs that identify the emote sets that the user has access to. To access the emotes in the set, use the [Get Emote Sets](https://dev.twitch.tv/docs/api/reference#get-emote-sets) API.
     pub fn emote_sets(&self) -> impl Iterator<Item = &str> {
         self.tags
             .get("emote-sets")

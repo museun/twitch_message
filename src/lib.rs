@@ -1,3 +1,4 @@
+#![warn(missing_docs)]
 //! This is a crate to parse chat messages from [https://www.twitch.tv](https://www.twitch.tv)
 //!
 //! This crate does not provide any I/O rather just parsing of a `&str` into typed messages.
@@ -100,7 +101,7 @@
 //!
 //! If you enable the `std` feature (see [features](#features)), you will have access to the [`Encode`](crate::encode::Encode) and [`Encodable`](crate::encode::Encodable) traits which operate on a [`std::io::Write`] source. (e.g. a [`Vec<u8>`] or [`std::net::TcpStream`])
 //!
-//! ### Example
+//! ### Examples
 //! #### Format/Formattable
 //!
 //! ```rust
@@ -122,6 +123,7 @@
 //! ```
 //!
 //! #### Encode/Encodable
+//!
 //! ```rust,ignore
 //! // this adds the # to the channel, if its missing
 //! let pm = twitch_message::encode::privmsg("museun", "hello, world.");
@@ -141,6 +143,7 @@
 //! ```
 //!
 //! # Features
+//!
 //! | Feature | Description |
 //! | --- | --- |
 //! |default | there are no default features |

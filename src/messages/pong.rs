@@ -2,10 +2,13 @@ use std::borrow::Cow;
 
 use super::Message;
 
+/// This command is a reply to the [PING](crate::encode::Ping) command
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Pong<'a> {
+    /// Token associated with the [`Ping`](crate::encode::Ping) that this pong should reflect
     pub token: Cow<'a, str>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 

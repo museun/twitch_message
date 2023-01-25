@@ -2,28 +2,37 @@ use std::borrow::Cow;
 
 use super::{Message, Tags};
 
+/// [`CLEARCHAT`](https://dev.twitch.tv/docs/irc/commands/#clearchat) command. Sent when a bot or moderator removes all messages from the chat room or removes all messages for the specified user.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct ClearChat<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
+    /// The channel where the `CLEARCHAT` was sent
     pub channel: Cow<'a, str>,
+    /// The target of the `CLEARCHAT`
     pub target: ClearChatTarget<'a>,
+    /// Metadata attached to the command
     pub tags: Tags<'a>,
 }
 
 impl<'a> ClearChat<'a> {
+    /// The duration in seconds the user has been timed out for. Is [`None`] if the command targets all chat messages.
     pub fn ban_duration(&self) -> Option<usize> {
         self.tags.parsed("ban-duration").transpose().ok().flatten()
     }
 
+    /// The ID of the channel where the messages were removed from.
     pub fn room_id(&self) -> Option<&str> {
         self.tags.get("room-id")
     }
 
+    /// The ID of the user that was banned or put in a timeout. The user was banned if the message doesn’t include the ban-duration tag.
     pub fn target_user_id(&self) -> Option<&str> {
         self.tags.get("target-user-id")
     }
 
+    /// The UNIX timestamp.
     pub fn tmi_sent_ts(&self) -> Option<&str> {
         self.tags.get("tmi-sent-ts")
     }
@@ -35,10 +44,13 @@ impl ClearChat<'_> {
     }
 }
 
+/// The target of a [`ClearChat`]
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum ClearChatTarget<'a> {
+    /// The `CLEARCHAT` targets all chat messages
     All,
+    /// The `CLEARCHAT` targets the specified user with login
     User(Cow<'a, str>),
 }
 

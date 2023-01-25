@@ -1,10 +1,16 @@
+#![allow(missing_docs, deprecated)]
+
 use std::borrow::Cow;
 
 use super::Message;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+#[deprecated(
+    note = "hosting has been deprecated, see https://help.twitch.tv/s/article/how-to-use-host-mode?language=en_US"
+)]
 pub struct HostTarget<'a> {
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
     pub hosting_channel: Cow<'a, str>,
     pub host_mode: HostMode,
@@ -37,6 +43,9 @@ impl HostTarget<'_> {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+#[deprecated(
+    note = "hosting has been deprecated, see https://help.twitch.tv/s/article/how-to-use-host-mode?language=en_US"
+)]
 pub enum HostMode {
     Start {
         channel: (usize, usize),
@@ -93,6 +102,8 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for HostTarget<'a> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(deprecated)]
+
     use super::*;
     use crate::test_util;
 

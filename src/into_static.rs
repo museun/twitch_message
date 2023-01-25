@@ -6,7 +6,12 @@ use crate::{messages::*, HashMap, Prefix, Tags};
 ///
 /// This is used for going from a [`Message<'a>`](crate::messages::Message) to a `Message<'static>` or any of the sub types (see [`messages`](crate::messages))
 pub trait IntoStatic {
+    /// Output of [`IntoStatic::into_static`].
+    ///
+    /// This is an alternative to `ToOwned::Owned`
     type Output: 'static;
+
+    /// This method casts `self` between `Self<'a>` and `Self<'static>`.
     fn into_static(self) -> Self::Output;
 }
 
@@ -235,6 +240,7 @@ where
     }
 }
 
+#[allow(deprecated)]
 impl<'a> IntoStatic for HostTarget<'a>
 where
     'static: 'a,
@@ -249,6 +255,7 @@ where
     }
 }
 
+#[allow(deprecated)]
 impl IntoStatic for HostMode {
     type Output = Self;
     fn into_static(self) -> Self::Output {
@@ -269,6 +276,7 @@ where
     }
 }
 
+#[allow(deprecated)]
 impl<'a> IntoStatic for Notice<'a>
 where
     'static: 'a,

@@ -4,14 +4,18 @@ use crate::{parse_badges, Badge, Color};
 
 use super::{Message, Tags};
 
+/// [`GLOBALUSERSTATE`](https://dev.twitch.tv/docs/irc/commands/#globaluserstate) command. The Twitch IRC server sends this message after the bot authenticates with the server.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct GlobalUserState<'a> {
+    /// Metadata attached to the command
     pub tags: Tags<'a>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 
 impl<'a> GlobalUserState<'a> {
+    /// Contains metadata related to the chat badges in the [`badges`](Self::badges) tag.
     pub fn badge_info<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         self.tags
             .get("badge-info")
@@ -19,18 +23,26 @@ impl<'a> GlobalUserState<'a> {
             .flat_map(parse_badges)
     }
 
+    /// Global badges attached to the connected user.
+    ///
+    /// # See also
+    ///
+    /// [`UserState::badges`](super::user_state::UserState::badges)
     pub fn badges<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         Badge::from_tags(&self.tags)
     }
 
+    /// The color of the user’s name in the chat room.
     pub fn color(&self) -> Option<Color> {
         self.tags.color()
     }
 
+    /// The user’s display name
     pub fn display_name(&self) -> Option<&str> {
         self.tags.get("display-name")
     }
 
+    /// A comma-delimited list of IDs that identify the emote sets that the user has access to. To access the emotes in the set, use the [Get Emote Sets](https://dev.twitch.tv/docs/api/reference#get-emote-sets) API.
     pub fn emote_sets(&self) -> impl Iterator<Item = &str> {
         self.tags
             .get("emote-sets")
@@ -38,14 +50,17 @@ impl<'a> GlobalUserState<'a> {
             .flat_map(|s| s.split(','))
     }
 
+    /// Indicates whether the user has site-wide commercial free mode enabled.
     pub fn is_turbo(&self) -> bool {
         self.tags.bool("turbo")
     }
 
+    /// The user’s ID.
     pub fn user_id(&self) -> Option<&str> {
         self.tags.get("user-id")
     }
 
+    /// The type of user.
     pub fn user_type(&self) -> UserType {
         self.tags
             .get("user-type")
@@ -54,12 +69,17 @@ impl<'a> GlobalUserState<'a> {
     }
 }
 
+/// The type of user.
 #[derive(Copy, Clone, Default, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub enum UserType {
+    /// A Twitch administrator
     Admin,
+    /// A global moderator
     GlobalMod,
+    /// A Twitch employee
     Staff,
+    /// A normal user
     #[default]
     Normal,
 }

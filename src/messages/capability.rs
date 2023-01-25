@@ -2,11 +2,17 @@ use std::borrow::Cow;
 
 use super::Message;
 
+/// A capability signals extra functionality, received when requesting capabilities on server join
+///
+/// See [`encode::Capability`](crate::encode::Capability) for encoding capabilities
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Capability<'a> {
+    /// Whether or not the capability has been acknowledged
     pub acknowledged: bool,
+    /// The kind of capability (e.g. "sasl")
     pub kind: Cow<'a, str>,
+    /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 

@@ -1,13 +1,16 @@
 use std::borrow::Cow;
 
-use crate::Tags;
+use crate::{
+    messages::{EmoteIdRef, IntoCow},
+    Tags,
+};
 
 /// An emote attached to a message
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Emote<'a> {
     /// The `id` of the emote (e.g. `25` for `Kappa`)
-    pub id: Cow<'a, str>,
+    pub id: Cow<'a, EmoteIdRef>,
     /// The `name` of the emote (e.g. `Kappa`)
     pub name: Cow<'a, str>,
     /// The byte position of the emote (name) in the provided `data`
@@ -24,8 +27,8 @@ impl<'a> Emote<'a> {
     /// let tags = Tags::builder().add("emotes", "25:0-4,14-18").finish();
     /// let data = "Kappa testing Kappa";
     /// let expected = [
-    ///     Emote { id: Cow::from("25"), name: Cow::from("Kappa"), byte_pos: (0, 5) },
-    ///     Emote { id: Cow::from("25"), name: Cow::from("Kappa"), byte_pos: (14, 19) },
+    ///     Emote { id: Cow::Borrowed("25".into()), name: Cow::Borrowed("Kappa"), byte_pos: (0, 5) },
+    ///     Emote { id: Cow::Borrowed("25".into()), name: Cow::Borrowed("Kappa"), byte_pos: (14, 19) },
     /// ];
     /// for (i, emote) in Emote::from_tags(&tags, data).enumerate() {
     ///     assert_eq!(expected[i], emote);
@@ -54,8 +57,8 @@ impl<'a> Emote<'a> {
 /// let emotes = "25:0-4,14-18";
 /// let data = "Kappa testing Kappa";
 /// let expected = [
-///     Emote { id: Cow::from("25"), name: Cow::from("Kappa"), byte_pos: (0, 5) },
-///     Emote { id: Cow::from("25"), name: Cow::from("Kappa"), byte_pos: (14, 19) },
+///     Emote { id: Cow::Borrowed("25".into()), name: Cow::Borrowed("Kappa"), byte_pos: (0, 5) },
+///     Emote { id: Cow::Borrowed("25".into()), name: Cow::Borrowed("Kappa"), byte_pos: (14, 19) },
 /// ];
 /// for (i, emote) in parse_emotes(emotes, data).enumerate() {
 ///     assert_eq!(expected[i], emote);
@@ -86,7 +89,7 @@ pub fn parse_emotes<'a>(input: &'a str, data: &'a str) -> impl Iterator<Item = E
             let (end, start) = (&mut (end + start), &mut start);
 
             Emote {
-                id: Cow::from(emote),
+                id: IntoCow::into_cow(emote),
                 name: substr(data, start, end),
                 byte_pos: (*start, *end),
             }

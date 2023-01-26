@@ -88,6 +88,36 @@ where
     }
 }
 
+impl<'a> IntoStatic for TwitchMessage<'a>
+where
+    'static: 'a,
+{
+    type Output = TwitchMessage<'static>;
+
+    #[allow(deprecated)]
+    fn into_static(self) -> Self::Output {
+        match self {
+            Self::UserState(msg) => TwitchMessage::UserState(msg.into_static()),
+            Self::UserNotice(msg) => TwitchMessage::UserNotice(msg.into_static()),
+            Self::Reconnect(msg) => TwitchMessage::Reconnect(msg.into_static()),
+            Self::HostTarget(msg) => TwitchMessage::HostTarget(msg.into_static()),
+            Self::RoomState(msg) => TwitchMessage::RoomState(msg.into_static()),
+            Self::IrcReady(msg) => TwitchMessage::IrcReady(msg.into_static()),
+            Self::Privmsg(msg) => TwitchMessage::Privmsg(msg.into_static()),
+            Self::Whisper(msg) => TwitchMessage::Whisper(msg.into_static()),
+            Self::Notice(msg) => TwitchMessage::Notice(msg.into_static()),
+            Self::Ping(msg) => TwitchMessage::Ping(msg.into_static()),
+            Self::Pong(msg) => TwitchMessage::Pong(msg.into_static()),
+            Self::Ready(msg) => TwitchMessage::Ready(msg.into_static()),
+            Self::GlobalUserState(msg) => TwitchMessage::GlobalUserState(msg.into_static()),
+            Self::ClearMsg(msg) => TwitchMessage::ClearMsg(msg.into_static()),
+            Self::Capability(msg) => TwitchMessage::Capability(msg.into_static()),
+            Self::ClearChat(msg) => TwitchMessage::ClearChat(msg.into_static()),
+            Self::Message(msg) => TwitchMessage::Message(msg.into_static()),
+        }
+    }
+}
+
 impl<'a> IntoStatic for Message<'a>
 where
     'static: 'a,

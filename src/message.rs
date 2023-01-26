@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crate::{
     encode::octo,
-    messages::{MessageKind, Privmsg},
+    messages::{MessageKind, Privmsg, TwitchMessage},
     typed_messages::TypedMessageMarker,
     Error, IntoStatic, Parse, Prefix, Tags,
 };
@@ -62,6 +62,44 @@ where
 
         T::try_from(self).ok()
     }
+
+    /// Get this type as an enumeration of all possible types
+    pub fn as_enum(&self) -> TwitchMessage<'a> {
+        fn convert<'a, T>(msg: Message<'a>) -> TwitchMessage<'a>
+        where
+            T: TypedMessageMarker<'a>,
+            TwitchMessage<'a>: From<T>,
+            T: 'a,
+        {
+            match msg.clone().as_typed_message::<T>() {
+                Some(sub) => sub.into(),
+                None => TwitchMessage::Message(msg.clone()),
+            }
+        }
+
+        let this = self.clone();
+        use {crate::messages::*, MessageKind as K};
+        #[allow(deprecated)]
+        match self.kind {
+            K::Capability => convert::<Capability<'a>>(this),
+            K::Ping => convert::<Ping<'a>>(this),
+            K::Pong => convert::<Pong<'a>>(this),
+            K::IrcReady => convert::<IrcReady<'a>>(this),
+            K::Ready => convert::<Ready<'a>>(this),
+            K::GlobalUserState => convert::<GlobalUserState<'a>>(this),
+            K::UserState => convert::<UserState<'a>>(this),
+            K::RoomState => convert::<RoomState<'a>>(this),
+            K::Privmsg => convert::<Privmsg<'a>>(this),
+            K::ClearChat => convert::<ClearChat<'a>>(this),
+            K::ClearMsg => convert::<ClearMsg<'a>>(this),
+            K::Notice => convert::<Notice<'a>>(this),
+            K::HostTarget => convert::<HostTarget<'a>>(this),
+            K::UserNotice => convert::<UserNotice<'a>>(this),
+            K::Whisper => convert::<Whisper<'a>>(this),
+            K::Reconnect => convert::<Reconnect<'a>>(this),
+            _ => TwitchMessage::Message(self.clone()),
+        }
+    }
 }
 
 impl Message<'static> {
@@ -91,6 +129,44 @@ impl Message<'static> {
         T::try_from(self)
             .map(crate::IntoStatic::into_static)
             .map_err(Into::into)
+    }
+
+    /// Convert this type into an enumeration of all possible types
+    pub fn into_enum(self) -> TwitchMessage<'static> {
+        fn convert<T>(msg: Message<'static>) -> TwitchMessage<'static>
+        where
+            Message<'static>: 'static,
+            T: TypedMessageMarker<'static>,
+            <T as TryFrom<Message<'static>>>::Error: Into<Message<'static>>,
+            TwitchMessage<'static>: From<<T as IntoStatic>::Output>,
+        {
+            match msg.into_typed_message::<T>() {
+                Ok(sub) => sub.into(),
+                Err(sub) => sub.into(),
+            }
+        }
+
+        use {crate::messages::*, MessageKind as K};
+        #[allow(deprecated)]
+        match self.kind {
+            K::Capability => convert::<Capability>(self),
+            K::Ping => convert::<Ping>(self),
+            K::Pong => convert::<Pong>(self),
+            K::IrcReady => convert::<IrcReady>(self),
+            K::Ready => convert::<Ready>(self),
+            K::GlobalUserState => convert::<GlobalUserState>(self),
+            K::UserState => convert::<UserState>(self),
+            K::RoomState => convert::<RoomState>(self),
+            K::Privmsg => convert::<Privmsg>(self),
+            K::ClearChat => convert::<ClearChat>(self),
+            K::ClearMsg => convert::<ClearMsg>(self),
+            K::Notice => convert::<Notice>(self),
+            K::HostTarget => convert::<HostTarget>(self),
+            K::UserNotice => convert::<UserNotice>(self),
+            K::Whisper => convert::<Whisper>(self),
+            K::Reconnect => convert::<Reconnect>(self),
+            _ => self.into(),
+        }
     }
 }
 

@@ -52,3 +52,6 @@ pub use reconnect::Reconnect;
 
 mod user_notice;
 pub use user_notice::{UserNotice, UserNoticeId};
+
+mod twitch_message;
+pub use self::twitch_message::TwitchMessage;

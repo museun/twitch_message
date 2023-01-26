@@ -35,7 +35,13 @@ required-features = ["std", "ping"]
 name = "bot"
 required-features = ["std", "ping"]
 
+[[example]]
+name = "tls"
+required-features = ["std"]
+
 [dev-dependencies]
+anyhow = "1.0.68"
+native-tls = "0.2.11"
 simple_env_load = "0.2.0"
 
 [workspace]

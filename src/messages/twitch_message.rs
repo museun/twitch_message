@@ -322,7 +322,7 @@ mod tests {
                 raw: Cow::default(),
             }),
             TwitchMessage::Ready(Ready {
-                name: Cow::default(),
+                name: Cow::Borrowed("".into()),
                 raw: Cow::default(),
             }),
             TwitchMessage::Pong(Pong {
@@ -334,7 +334,7 @@ mod tests {
                 raw: Cow::default(),
             }),
             TwitchMessage::IrcReady(IrcReady {
-                name: Cow::default(),
+                name: Cow::Borrowed("".into()),
                 raw: Cow::default(),
             }),
             TwitchMessage::HostTarget(HostTarget {
@@ -365,7 +365,7 @@ mod tests {
             }),
             TwitchMessage::Privmsg(Privmsg {
                 channel: Cow::default(),
-                sender: Cow::default(),
+                sender: Cow::Borrowed("".into()),
                 tags: Tags::default(),
                 data: Cow::default(),
                 raw: Cow::default(),

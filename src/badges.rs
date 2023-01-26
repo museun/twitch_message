@@ -1,6 +1,9 @@
 use std::borrow::Cow;
 
-use crate::Tags;
+use crate::{
+    messages::{BadgeSetIdRef, ChatBadgeIdRef, IntoCow},
+    Tags,
+};
 
 /// Parse badges from a string
 ///
@@ -10,8 +13,8 @@ use crate::Tags;
 ///
 /// let input = "broadcaster/1,foo/bar";
 /// let expected = [
-///     Badge{ name: Cow::from("broadcaster"), version: Cow::from("1") },
-///     Badge{ name: Cow::from("foo"), version: Cow::from("bar") },
+///     Badge{ name: Cow::Borrowed("broadcaster".into()), version: Cow::Borrowed("1".into()) },
+///     Badge{ name: Cow::Borrowed("foo".into()), version: Cow::Borrowed("bar".into()) },
 /// ];
 /// for (i, badge) in parse_badges(input).enumerate() {
 ///     assert_eq!(expected[i], badge)
@@ -24,11 +27,11 @@ pub fn parse_badges(input: &str) -> impl Iterator<Item = Badge<'_>> + '_ {
         .split(',')
         .flat_map(|badge| badge.split_once('/'))
         .map(|(name, version)| {
-            let mut version = Cow::from(version);
+            let mut version = Cow::Borrowed(version);
             Badge::unescape(&mut version);
             Badge {
-                name: Cow::from(name),
-                version,
+                name: Cow::Borrowed(name.into()),
+                version: IntoCow::into_cow(version),
             }
         })
 }
@@ -38,9 +41,9 @@ pub fn parse_badges(input: &str) -> impl Iterator<Item = Badge<'_>> + '_ {
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Badge<'a> {
     /// The name of the badge
-    pub name: Cow<'a, str>,
+    pub name: Cow<'a, BadgeSetIdRef>,
     /// The version (or, more specifically the metadata) for the badge
-    pub version: Cow<'a, str>,
+    pub version: Cow<'a, ChatBadgeIdRef>,
 }
 
 impl<'a> Badge<'a> {
@@ -52,8 +55,8 @@ impl<'a> Badge<'a> {
     ///
     /// let tags = Tags::builder().add("badges", "broadcaster/1,foo/bar").finish();
     /// let expected = [
-    ///     Badge{ name: Cow::from("broadcaster"), version: Cow::from("1") },
-    ///     Badge{ name: Cow::from("foo"), version: Cow::from("bar") },
+    ///     Badge{ name: Cow::Borrowed("broadcaster".into()), version: Cow::Borrowed("1".into()) },
+    ///     Badge{ name: Cow::Borrowed("foo".into()), version: Cow::Borrowed("bar".into()) },
     /// ];
     /// for (i, badge) in Badge::from_tags(&tags).enumerate() {
     ///     assert_eq!(expected[i], badge)

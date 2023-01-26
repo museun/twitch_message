@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crate::{parse_badges, Badge, Color};
 
-use super::{Message, Tags, UserType};
+use super::{EmoteSetIdRef, Message, Tags, UserType};
 
 /// State received after joining a channel or sending a [`Privmsg`](crate::encode::Privmsg)
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -35,13 +35,13 @@ impl<'a> UserState<'a> {
     }
 
     /// The user’s display name
-    pub fn display_name(&self) -> Option<&str> {
-        self.tags.get("display-name")
+    pub fn display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("display-name").map(Into::into)
     }
 
     /// An ID that uniquely identifies the message.
-    pub fn msg_id(&self) -> Option<&str> {
-        self.tags.get("id")
+    pub fn msg_id(&self) -> Option<&super::MsgIdRef> {
+        self.tags.get("id").map(Into::into)
     }
 
     /// The user is a moderator in the channel
@@ -68,11 +68,12 @@ impl<'a> UserState<'a> {
     }
 
     /// A comma-delimited list of IDs that identify the emote sets that the user has access to. To access the emotes in the set, use the [Get Emote Sets](https://dev.twitch.tv/docs/api/reference#get-emote-sets) API.
-    pub fn emote_sets(&self) -> impl Iterator<Item = &str> {
+    pub fn emote_sets(&self) -> impl Iterator<Item = &EmoteSetIdRef> {
         self.tags
             .get("emote-sets")
             .into_iter()
             .flat_map(|s| s.split(','))
+            .map(Into::into)
     }
 }
 

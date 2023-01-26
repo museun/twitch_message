@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crate::{parse_badges, Badge, Color};
 
-use super::{Message, Tags};
+use super::{EmoteSetIdRef, Message, Tags, UserType};
 
 /// [`GLOBALUSERSTATE`](https://dev.twitch.tv/docs/irc/commands/#globaluserstate) command. The Twitch IRC server sends this message after the bot authenticates with the server.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,16 +38,17 @@ impl<'a> GlobalUserState<'a> {
     }
 
     /// The user’s display name
-    pub fn display_name(&self) -> Option<&str> {
-        self.tags.get("display-name")
+    pub fn display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("display-name").map(Into::into)
     }
 
     /// A comma-delimited list of IDs that identify the emote sets that the user has access to. To access the emotes in the set, use the [Get Emote Sets](https://dev.twitch.tv/docs/api/reference#get-emote-sets) API.
-    pub fn emote_sets(&self) -> impl Iterator<Item = &str> {
+    pub fn emote_sets(&self) -> impl Iterator<Item = &EmoteSetIdRef> {
         self.tags
             .get("emote-sets")
             .into_iter()
             .flat_map(|s| s.split(','))
+            .map(Into::into)
     }
 
     /// Indicates whether the user has site-wide commercial free mode enabled.
@@ -56,8 +57,8 @@ impl<'a> GlobalUserState<'a> {
     }
 
     /// The user’s ID.
-    pub fn user_id(&self) -> Option<&str> {
-        self.tags.get("user-id")
+    pub fn user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("user-id").map(Into::into)
     }
 
     /// The type of user.
@@ -66,32 +67,6 @@ impl<'a> GlobalUserState<'a> {
             .get("user-type")
             .map(UserType::parse)
             .unwrap_or_default()
-    }
-}
-
-/// The type of user.
-#[derive(Copy, Clone, Default, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
-#[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
-pub enum UserType {
-    /// A Twitch administrator
-    Admin,
-    /// A global moderator
-    GlobalMod,
-    /// A Twitch employee
-    Staff,
-    /// A normal user
-    #[default]
-    Normal,
-}
-
-impl UserType {
-    pub(crate) fn parse(input: &str) -> Self {
-        match input {
-            "admin" => Self::Admin,
-            "global_mod" => Self::GlobalMod,
-            "staff" => Self::Staff,
-            _ => Self::Normal,
-        }
     }
 }
 

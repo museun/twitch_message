@@ -47,8 +47,8 @@ impl<'a> UserNotice<'a> {
     }
 
     /// The user’s display name
-    pub fn display_name(&self) -> Option<&str> {
-        self.tags.get("display-name")
+    pub fn display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("display-name").map(Into::into)
     }
 
     /// The message Twitch shows in the chat room for this notice.
@@ -72,13 +72,13 @@ impl<'a> UserNotice<'a> {
     }
 
     /// The login name of the user whose action generated the message.
-    pub fn login(&self) -> Option<&str> {
-        self.tags.get("login")
+    pub fn login(&self) -> Option<&super::UserNameRef> {
+        self.tags.get("login").map(Into::into)
     }
 
     /// An ID that uniquely identifies this message.
-    pub fn id(&self) -> Option<&str> {
-        self.tags.get("id")
+    pub fn id(&self) -> Option<&super::MsgIdRef> {
+        self.tags.get("id").map(Into::into)
     }
 
     /// The type of notice
@@ -87,14 +87,14 @@ impl<'a> UserNotice<'a> {
     }
 
     /// An ID that identifies the chat room (channel).
-    pub fn room_id(&self) -> Option<&str> {
-        self.tags.get("room_id")
+    pub fn room_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("room-id").map(Into::into)
     }
 
     /// The user’s ID.
 
-    pub fn user_id(&self) -> Option<&str> {
-        self.tags.get("user-id")
+    pub fn user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("user-id").map(Into::into)
     }
 
     /// The UNIX timestamp.
@@ -120,18 +120,19 @@ impl<'a> UserNotice<'a> {
     /// The display name of the broadcaster raiding this channel.
     ///
     /// Included only with [`raid`](UserNoticeId::Raid) notices
-    pub fn msg_param_display_name(&self) -> Option<&str> {
+    pub fn msg_param_display_name(&self) -> Option<&super::DisplayNameRef> {
         // XXX: docs have this in a weird casing, going to try the other as well.
         self.tags
             .get("msg-param-displayName")
             .or_else(|| self.tags.get("msg-param-display-name"))
+            .map(Into::into)
     }
 
     /// The display name of the broadcaster raiding this channel.
     ///
     /// Included only with [`raid`](UserNoticeId::Raid) notices
-    pub fn msg_param_login(&self) -> Option<&str> {
-        self.tags.get("msg-param-login")
+    pub fn msg_param_login(&self) -> Option<&super::UserNameRef> {
+        self.tags.get("msg-param-login").map(Into::into)
     }
 
     /// The total number of months the user has subscribed.
@@ -162,36 +163,40 @@ impl<'a> UserNotice<'a> {
     /// The display name of the subscription gift recipient.
     ///
     /// Included only with [`subgift`](UserNoticeId::Subgift) notices
-    pub fn msg_param_recipient_display_name(&self) -> Option<&str> {
-        self.tags.get("msg-param-recipient-display-name")
+    pub fn msg_param_recipient_display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags
+            .get("msg-param-recipient-display-name")
+            .map(Into::into)
     }
 
     /// The user ID of the subscription gift recipient.
     ///
     /// Included only with [`subgift`](UserNoticeId::Subgift) notices
-    pub fn msg_param_recipient_id(&self) -> Option<&str> {
-        self.tags.get("msg-param-recipient-id")
+    pub fn msg_param_recipient_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("msg-param-recipient-id").map(Into::into)
     }
 
     /// The user name of the subscription gift recipient.
     ///
     /// Included only with [`subgift`](UserNoticeId::Subgift) notices
-    pub fn msg_param_recipient_user_name(&self) -> Option<&str> {
-        self.tags.get("msg-param-recipient-user-name")
+    pub fn msg_param_recipient_user_name(&self) -> Option<&super::UserNameRef> {
+        self.tags
+            .get("msg-param-recipient-user-name")
+            .map(Into::into)
     }
 
     /// The login name of the user who gifted the subscription.
     ///
     /// Included only with [`giftpaidupgrade`](UserNoticeId::GiftPaidUpgrade) notices
-    pub fn msg_param_sender_login(&self) -> Option<&str> {
-        self.tags.get("msg-param-sender-login")
+    pub fn msg_param_sender_login(&self) -> Option<&super::UserNameRef> {
+        self.tags.get("msg-param-sender-login").map(Into::into)
     }
 
     /// The display name of the user who gifted the subscription.
     ///
     /// Included only with [`giftpaidupgrade`](UserNoticeId::GiftPaidUpgrade) notices
-    pub fn msg_param_sender_name(&self) -> Option<&str> {
-        self.tags.get("msg-param-sender-name")
+    pub fn msg_param_sender_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("msg-param-sender-name").map(Into::into)
     }
 
     /// Indicates whether the user wants their streaks shared.

@@ -19,7 +19,7 @@ mod ready;
 pub use ready::Ready;
 
 mod global_user_state;
-pub use global_user_state::{GlobalUserState, UserType};
+pub use global_user_state::GlobalUserState;
 
 mod user_state;
 pub use user_state::UserState;
@@ -55,3 +55,8 @@ pub use user_notice::{UserNotice, UserNoticeId};
 
 mod twitch_message;
 pub use self::twitch_message::TwitchMessage;
+
+pub use twitch_types::{
+    self as types, BadgeSetIdRef, ChatBadgeIdRef, DisplayNameRef, EmoteIdRef, EmoteSetIdRef,
+    IntoCow, MsgIdRef, UserIdRef, UserNameRef, UserType,
+};

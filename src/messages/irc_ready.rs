@@ -1,13 +1,13 @@
 use std::borrow::Cow;
 
-use super::Message;
+use super::{IntoCow, Message};
 
 /// A 001 IRC-styled Ready
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct IrcReady<'a> {
     /// The name of the connected user
-    pub name: Cow<'a, str>,
+    pub name: Cow<'a, super::UserNameRef>,
     /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
@@ -27,7 +27,7 @@ impl<'a> TryFrom<Message<'a>> for IrcReady<'a> {
         }
 
         Ok(Self {
-            name: value.args.remove(0),
+            name: IntoCow::into_cow(value.args.remove(0)),
             raw: value.raw,
         })
     }
@@ -42,7 +42,7 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for IrcReady<'a> {
         }
 
         Ok(Self {
-            name: value.args[0].clone(),
+            name: IntoCow::into_cow(value.args[0].clone()),
             raw: value.raw.clone(),
         })
     }
@@ -60,7 +60,7 @@ mod tests {
         assert_eq!(
             test_util::parse_as::<IrcReady>(input),
             IrcReady {
-                name: Cow::from("museun"),
+                name: IntoCow::into_cow("museun"),
                 raw,
             }
         );

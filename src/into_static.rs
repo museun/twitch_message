@@ -51,6 +51,54 @@ impl IntoStatic for &str {
     }
 }
 
+impl IntoStatic for &UserIdRef {
+    type Output = Cow<'static, UserIdRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl<'a> IntoStatic for Cow<'a, UserIdRef> {
+    type Output = Cow<'static, UserIdRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl IntoStatic for &UserNameRef {
+    type Output = Cow<'static, UserNameRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl<'a> IntoStatic for Cow<'a, UserNameRef> {
+    type Output = Cow<'static, UserNameRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl IntoStatic for &MsgIdRef {
+    type Output = Cow<'static, MsgIdRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl<'a> IntoStatic for Cow<'a, MsgIdRef> {
+    type Output = Cow<'static, MsgIdRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
 impl<T> IntoStatic for Vec<T>
 where
     T: IntoStatic,

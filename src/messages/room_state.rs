@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use super::{Message, Tags};
+use super::{Message, Tags, UserIdRef};
 
 /// [`ROOMSTATE`](https://dev.twitch.tv/docs/irc/commands/#roomstate). Sent when the bot joins a channel or when the channel’s chat settings change.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -29,8 +29,8 @@ impl<'a> RoomState<'a> {
     }
 
     /// An ID that identifies the chat room (channel).
-    pub fn room_id(&self) -> Option<&str> {
-        self.tags.get("room-id")
+    pub fn room_id(&self) -> Option<&UserIdRef> {
+        self.tags.get("room-id").map(Into::into)
     }
 
     /// Room is in slow mode. The value determines how long, in seconds, users must wait between sending messages.

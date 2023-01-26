@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use super::{Message, Tags};
+use super::{IntoCow, Message, Tags};
 
 /// [`CLEARCHAT`](https://dev.twitch.tv/docs/irc/commands/#clearchat) command. Sent when a bot or moderator removes all messages from the chat room or removes all messages for the specified user.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,13 +23,13 @@ impl<'a> ClearChat<'a> {
     }
 
     /// The ID of the channel where the messages were removed from.
-    pub fn room_id(&self) -> Option<&str> {
-        self.tags.get("room-id")
+    pub fn room_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("room-id").map(Into::into)
     }
 
     /// The ID of the user that was banned or put in a timeout. The user was banned if the message doesn’t include the ban-duration tag.
-    pub fn target_user_id(&self) -> Option<&str> {
-        self.tags.get("target-user-id")
+    pub fn target_user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("target-user-id").map(Into::into)
     }
 
     /// The UNIX timestamp.
@@ -51,7 +51,7 @@ pub enum ClearChatTarget<'a> {
     /// The `CLEARCHAT` targets all chat messages
     All,
     /// The `CLEARCHAT` targets the specified user with login
-    User(Cow<'a, str>),
+    User(Cow<'a, super::UserNameRef>),
 }
 
 impl<'a> TryFrom<Message<'a>> for ClearChat<'a> {
@@ -67,6 +67,7 @@ impl<'a> TryFrom<Message<'a>> for ClearChat<'a> {
             channel: value.args.remove(0),
             target: value
                 .data
+                .map(IntoCow::into_cow)
                 .map_or(ClearChatTarget::All, ClearChatTarget::User),
             tags: value.tags,
         })
@@ -87,6 +88,7 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for ClearChat<'a> {
             target: value
                 .data
                 .clone()
+                .map(IntoCow::into_cow)
                 .map_or(ClearChatTarget::All, ClearChatTarget::User),
             tags: value.tags.clone(),
         })
@@ -126,7 +128,7 @@ mod tests {
                 raw,
                 tags,
                 channel: Cow::from("#museun"),
-                target: ClearChatTarget::User(Cow::from("shaken_bot"))
+                target: ClearChatTarget::User(IntoCow::into_cow("shaken_bot"))
             }
         );
     }

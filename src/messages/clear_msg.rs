@@ -18,18 +18,18 @@ pub struct ClearMsg<'a> {
 
 impl<'a> ClearMsg<'a> {
     /// The name of the user who sent the message.
-    pub fn login(&self) -> Option<&str> {
-        self.tags.get("login")
+    pub fn login(&self) -> Option<&super::UserNameRef> {
+        self.tags.get("login").map(Into::into)
     }
 
     /// The ID of the channel (chat room) where the message was removed from.
-    pub fn room_id(&self) -> Option<&str> {
-        self.tags.get("room-id")
+    pub fn room_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("room-id").map(Into::into)
     }
 
     /// A UUID that identifies the message that was removed.
-    pub fn target_msg_id(&self) -> Option<&str> {
-        self.tags.get("target-msg-id")
+    pub fn target_msg_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("target-msg-id").map(Into::into)
     }
 
     /// The UNIX timestamp.

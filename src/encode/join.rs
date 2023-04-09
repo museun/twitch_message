@@ -41,6 +41,12 @@ impl<'a> crate::encode::fmt::Formattable for Join<'a> {
     }
 }
 
+impl<'a> std::fmt::Display for Join<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -51,6 +57,12 @@ mod tests {
         let join = super::join("museun");
         join.format(&mut out).unwrap();
         assert_eq!(out, "JOIN #museun\r\n");
+    }
+
+    #[test]
+    fn join_display() {
+        let raw = super::join("museun");
+        assert_eq!(raw.to_string(), "JOIN #museun\r\n");
     }
 
     #[test]

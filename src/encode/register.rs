@@ -59,6 +59,12 @@ impl<'a, const N: usize> crate::encode::fmt::Formattable for Register<'a, N> {
     }
 }
 
+impl<'a, const N: usize> std::fmt::Display for Register<'a, N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -70,6 +76,15 @@ mod tests {
         register.format(&mut out).unwrap();
         assert_eq!(
             out,
+            "CAP REQ twitch.tv/tags\r\nPASS password\r\nNICK test\r\n"
+        );
+    }
+
+    #[test]
+    fn register_display() {
+        let register = super::register("test", "password", [crate::encode::Capability::Tags]);
+        assert_eq!(
+            register.to_string(),
             "CAP REQ twitch.tv/tags\r\nPASS password\r\nNICK test\r\n"
         );
     }

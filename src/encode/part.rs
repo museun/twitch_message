@@ -43,6 +43,12 @@ impl<'a> crate::encode::fmt::Formattable for Part<'a> {
     }
 }
 
+impl<'a> std::fmt::Display for Part<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -53,6 +59,12 @@ mod tests {
         let part = super::part("museun");
         part.format(&mut out).unwrap();
         assert_eq!(out, "PART #museun\r\n");
+    }
+
+    #[test]
+    fn part_display() {
+        let raw = super::part("museun");
+        assert_eq!(raw.to_string(), "PART #museun\r\n");
     }
 
     #[test]

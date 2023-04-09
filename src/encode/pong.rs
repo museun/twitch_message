@@ -36,6 +36,12 @@ impl<'a> crate::encode::fmt::Formattable for Pong<'a> {
     }
 }
 
+impl<'a> std::fmt::Display for Pong<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -46,6 +52,12 @@ mod tests {
         let pong = super::pong("1234567890");
         pong.format(&mut out).unwrap();
         assert_eq!(out, "PONG :1234567890\r\n");
+    }
+
+    #[test]
+    fn pong_display() {
+        let raw = super::pong("1234567890");
+        assert_eq!(raw.to_string(), "PONG :1234567890\r\n");
     }
 
     #[test]

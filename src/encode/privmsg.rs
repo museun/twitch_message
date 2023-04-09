@@ -63,6 +63,12 @@ impl<'a> crate::encode::fmt::Formattable for Privmsg<'a> {
     }
 }
 
+impl<'a> std::fmt::Display for Privmsg<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -73,6 +79,12 @@ mod tests {
         let privmsg = super::privmsg("test", "hello, world");
         privmsg.format(&mut out).unwrap();
         assert_eq!(out, "PRIVMSG #test :hello, world\r\n");
+    }
+
+    #[test]
+    fn privmsg_display() {
+        let raw = super::privmsg("test", "hello, world");
+        assert_eq!(raw.to_string(), "PRIVMSG #test :hello, world\r\n");
     }
 
     #[test]

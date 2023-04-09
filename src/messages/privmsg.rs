@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use super::{Message, Prefix, Tags, UserType};
+use super::{IntoCow, Message, Prefix, Tags, UserType};
 use crate::{builders::PrivmsgBuilder, parse_badges, Badge, Color, Emote};
 
 /// A user posts a message to the chat room.
@@ -11,8 +11,8 @@ use crate::{builders::PrivmsgBuilder, parse_badges, Badge, Color, Emote};
 pub struct Privmsg<'a> {
     /// The channel this message was sent to. Prefixed with a `#`
     pub channel: Cow<'a, str>,
-    /// The author of the channel
-    pub sender: Cow<'a, str>,
+    /// The author of the message
+    pub sender: Cow<'a, super::UserNameRef>,
     /// Metadata attached to the message
     pub tags: Tags<'a>,
     /// The text message
@@ -51,8 +51,8 @@ impl<'a> Privmsg<'a> {
     }
 
     /// The user’s display name
-    pub fn display_name(&self) -> Option<&str> {
-        self.tags.get("display-name")
+    pub fn display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("display-name").map(Into::into)
     }
 
     /// unknown tag, see instead [`first_msg_from_user`](Self::first_msg_from_user)
@@ -77,32 +77,33 @@ impl<'a> Privmsg<'a> {
     }
 
     /// An ID that uniquely identifies the message.
-    pub fn msg_id(&self) -> Option<&str> {
-        self.tags.get("id")
+    pub fn msg_id(&self) -> Option<&super::MsgIdRef> {
+        self.tags.get("id").map(Into::into)
     }
+
     /// An ID that identifies the chat room (channel).
     pub fn room_id(&self) -> Option<&str> {
         self.tags.get("room-id")
     }
 
     /// An ID that uniquely identifies the parent message that this message is replying to.
-    pub fn reply_parent_msg_id(&self) -> Option<&str> {
-        self.tags.get("reply-parent-msg-id")
+    pub fn reply_parent_msg_id(&self) -> Option<&super::MsgIdRef> {
+        self.tags.get("reply-parent-msg-id").map(Into::into)
     }
 
     /// An ID that identifies the sender of the parent message.
-    pub fn reply_parent_user_id(&self) -> Option<&str> {
-        self.tags.get("reply-parent-user-id")
+    pub fn reply_parent_user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("reply-parent-user-id").map(Into::into)
     }
 
     /// The login name of the sender of the parent message.
-    pub fn reply_parent_user_login(&self) -> Option<&str> {
-        self.tags.get("reply-parent-user-login")
+    pub fn reply_parent_user_login(&self) -> Option<&super::UserNameRef> {
+        self.tags.get("reply-parent-user-login").map(Into::into)
     }
 
     /// The display name of the sender of the parent message.
-    pub fn reply_parent_display_name(&self) -> Option<&str> {
-        self.tags.get("reply-parent-display-name")
+    pub fn reply_parent_display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("reply-parent-display-name").map(Into::into)
     }
 
     /// The text of the parent message.
@@ -119,48 +120,52 @@ impl<'a> Privmsg<'a> {
     }
 
     /// The user’s ID.
-    pub fn user_id(&self) -> Option<&str> {
-        self.tags.get("user-id")
+    pub fn user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("user-id").map(Into::into)
     }
 
     /// The message is from the broadcaster of the channel
     pub fn is_from_broadcaster(&self) -> bool {
-        self.badges().any(|badge| badge.name == "broadcaster")
+        self.badges()
+            .any(|badge| badge.name.as_str() == "broadcaster")
     }
 
     /// The message is from a moderator in the channel
     pub fn is_from_moderator(&self) -> bool {
-        self.badges().any(|badge| badge.name == "moderator")
+        self.badges()
+            .any(|badge| badge.name.as_str() == "moderator")
     }
 
     /// The message is from a VIP in the channel
     pub fn is_from_vip(&self) -> bool {
-        self.badges().any(|badge| badge.name == "vip")
+        self.badges().any(|badge| badge.name.as_str() == "vip")
     }
 
     /// The message is from a subscriber of the channel
     pub fn is_from_subscriber(&self) -> bool {
-        self.badges().any(|badge| badge.name == "subscriber")
+        self.badges()
+            .any(|badge| badge.name.as_str() == "subscriber")
     }
 
     /// The message is from Twitch staff
     pub fn is_from_staff(&self) -> bool {
-        self.badges().any(|badge| badge.name == "staff")
+        self.badges().any(|badge| badge.name.as_str() == "staff")
     }
 
     /// The message is from a turbo user
     pub fn is_from_turbo(&self) -> bool {
-        self.badges().any(|badge| badge.name == "turbo")
+        self.badges().any(|badge| badge.name.as_str() == "turbo")
     }
 
     /// The message is from a global moderator
     pub fn is_from_global_moderator(&self) -> bool {
-        self.badges().any(|badge| badge.name == "global_mod")
+        self.badges()
+            .any(|badge| badge.name.as_str() == "global_mod")
     }
 
     /// The message is from a admin
     pub fn is_from_admin(&self) -> bool {
-        self.badges().any(|badge| badge.name == "admin")
+        self.badges().any(|badge| badge.name.as_str() == "admin")
     }
 
     /// A builder for constructing a [`Message`](crate::messages::Message) or [`Privmsg`](crate::messages::Privmsg)
@@ -188,7 +193,7 @@ impl<'a> TryFrom<Message<'a>> for Privmsg<'a> {
         Ok(Self {
             channel: value.args.remove(0),
             sender: match value.prefix {
-                Prefix::User { name, .. } => name,
+                Prefix::User { name, .. } => IntoCow::into_cow(name),
                 _ => unreachable!(),
             },
             tags: value.tags,
@@ -209,7 +214,7 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for Privmsg<'a> {
         Ok(Self {
             channel: value.args[0].clone(),
             sender: match value.prefix.clone() {
-                Prefix::User { name, .. } => name,
+                Prefix::User { name, .. } => IntoCow::into_cow(name),
                 _ => unreachable!(),
             },
             tags: value.tags.clone(),
@@ -250,7 +255,7 @@ mod tests {
                 raw,
                 tags,
                 channel: Cow::from("#museun"),
-                sender: Cow::from("museun"),
+                sender: IntoCow::into_cow("museun"),
                 data: Cow::from("testing")
             }
         );

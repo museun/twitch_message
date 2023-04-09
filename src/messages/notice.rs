@@ -26,8 +26,8 @@ impl<'a> Notice<'a> {
             .unwrap_or_default()
     }
 
-    pub fn target_user_id(&self) -> Option<&str> {
-        self.tags.get("target-user-id")
+    pub fn target_user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("target-user-id").map(Into::into)
     }
 }
 

@@ -1,5 +1,7 @@
 use super::octo;
 
+use crate::messages::MsgIdRef;
+
 /// Sends a message to a channel
 pub const fn privmsg<'a>(channel: &'a str, data: &'a str) -> Privmsg<'a> {
     Privmsg {
@@ -10,7 +12,7 @@ pub const fn privmsg<'a>(channel: &'a str, data: &'a str) -> Privmsg<'a> {
 }
 
 /// Sends a message to a channel, with a provided `reply-parent-msg-id` attached
-pub const fn reply<'a>(id: &'a str, channel: &'a str, data: &'a str) -> Privmsg<'a> {
+pub const fn reply<'a>(id: &'a MsgIdRef, channel: &'a str, data: &'a str) -> Privmsg<'a> {
     Privmsg {
         reply_id: Some(id),
         channel,
@@ -21,7 +23,7 @@ pub const fn reply<'a>(id: &'a str, channel: &'a str, data: &'a str) -> Privmsg<
 /// The type produced by [`privmsg`] or [`reply`]
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Privmsg<'a> {
-    reply_id: Option<&'a str>,
+    reply_id: Option<&'a MsgIdRef>,
     channel: &'a str,
     data: &'a str,
 }
@@ -89,7 +91,7 @@ mod tests {
         use crate::encode::Formattable;
 
         let mut out = String::new();
-        let reply = super::reply("123456", "test", "Kappa");
+        let reply = super::reply("123456".into(), "test", "Kappa");
         reply.format(&mut out).unwrap();
         assert_eq!(out, "@reply-parent-msg-id=123456 PRIVMSG #test :Kappa\r\n");
     }
@@ -100,7 +102,7 @@ mod tests {
         use crate::encode::Encodable;
 
         let mut out = vec![];
-        let reply = super::reply("123456", "test", "Kappa");
+        let reply = super::reply("123456".into(), "test", "Kappa");
         reply.encode(&mut out).unwrap();
         assert_eq!(out, b"@reply-parent-msg-id=123456 PRIVMSG #test :Kappa\r\n");
     }

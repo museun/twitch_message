@@ -32,8 +32,8 @@ impl<'a> Whisper<'a> {
     }
 
     /// The user’s display name
-    pub fn display_name(&self) -> Option<&str> {
-        self.tags.get("display-name")
+    pub fn display_name(&self) -> Option<&super::DisplayNameRef> {
+        self.tags.get("display-name").map(Into::into)
     }
 
     /// Emotes in the message.
@@ -42,8 +42,8 @@ impl<'a> Whisper<'a> {
     }
 
     /// An ID that uniquely identifies the whisper message.
-    pub fn msg_id(&self) -> Option<&str> {
-        self.tags.get("message-id")
+    pub fn msg_id(&self) -> Option<&super::MsgIdRef> {
+        self.tags.get("message-id").map(Into::into)
     }
 
     /// An ID that uniquely identifies the whisper thread
@@ -52,8 +52,8 @@ impl<'a> Whisper<'a> {
     }
 
     /// The ID of the user sending the whisper message.
-    pub fn user_id(&self) -> Option<&str> {
-        self.tags.get("user-id")
+    pub fn user_id(&self) -> Option<&super::UserIdRef> {
+        self.tags.get("user-id").map(Into::into)
     }
 
     /// User has turbo

@@ -203,8 +203,7 @@ use typed_messages::TypedMessageMarker;
 mod message;
 
 mod parse;
-use parse::Parse;
-pub use parse::{parse, parse_as, parse_many, ParseResult};
+pub use parse::{parse, parse_as, parse_many, Parse, ParseResult};
 
 mod into_static;
 pub use into_static::IntoStatic;

@@ -5,6 +5,8 @@ use crate::{typed_messages::TypedMessageMarker, Error};
 pub trait Parse<'a>: Sized {
     /// Output of the parse method
     type Output;
+
+    /// Tries to parse a string into some type
     fn parse(input: &mut &'a str) -> Self::Output;
 }
 

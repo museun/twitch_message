@@ -12,6 +12,8 @@ pub struct UserState<'a> {
     pub tags: Tags<'a>,
     /// The raw underlying string
     pub raw: Cow<'a, str>,
+    /// The channel this event happened on
+    pub channel: Cow<'a, str>,
 }
 
 impl<'a> UserState<'a> {
@@ -80,10 +82,11 @@ impl<'a> UserState<'a> {
 impl<'a> TryFrom<Message<'a>> for UserState<'a> {
     type Error = Message<'a>;
 
-    fn try_from(value: Message<'a>) -> Result<Self, Self::Error> {
+    fn try_from(mut value: Message<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
             tags: value.tags,
             raw: value.raw,
+            channel: value.args.remove(0),
         })
     }
 }
@@ -95,6 +98,11 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for UserState<'a> {
         Ok(Self {
             tags: value.tags.clone(),
             raw: value.raw.clone(),
+            channel: value
+                .args
+                .get(0)
+                .cloned()
+                .expect("channel attached to message"),
         })
     }
 }
@@ -118,7 +126,11 @@ mod tests {
         let (raw, tags) = test_util::raw_and_tags(input);
         assert_eq!(
             crate::test_util::parse_as::<UserState>(input),
-            UserState { raw, tags }
+            UserState {
+                raw,
+                tags,
+                channel: Cow::from("#museun")
+            }
         );
     }
 }

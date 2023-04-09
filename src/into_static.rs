@@ -158,6 +158,8 @@ where
             Self::Pong(msg) => TwitchMessage::Pong(msg.into_static()),
             Self::Ready(msg) => TwitchMessage::Ready(msg.into_static()),
             Self::GlobalUserState(msg) => TwitchMessage::GlobalUserState(msg.into_static()),
+            Self::Join(msg) => TwitchMessage::Join(msg.into_static()),
+            Self::Part(msg) => TwitchMessage::Part(msg.into_static()),
             Self::ClearMsg(msg) => TwitchMessage::ClearMsg(msg.into_static()),
             Self::Capability(msg) => TwitchMessage::Capability(msg.into_static()),
             Self::ClearChat(msg) => TwitchMessage::ClearChat(msg.into_static()),
@@ -235,6 +237,8 @@ where
             Self::UserState => MessageKind::UserState,
             Self::RoomState => MessageKind::RoomState,
             Self::Privmsg => MessageKind::Privmsg,
+            Self::Join => MessageKind::Join,
+            Self::Part => MessageKind::Part,
             Self::ClearChat => MessageKind::ClearChat,
             Self::ClearMsg => MessageKind::ClearMsg,
             Self::Notice => MessageKind::Notice,
@@ -490,6 +494,28 @@ where
             to_user: self.to_user.into_static(),
             data: self.data.into_static(),
             tags: self.tags.into_static(),
+        }
+    }
+}
+
+impl<'a> IntoStatic for Join<'a> {
+    type Output = Join<'static>;
+
+    fn into_static(self) -> Self::Output {
+        Join {
+            user: self.user.into_static(),
+            channel: self.channel.into_static(),
+        }
+    }
+}
+
+impl<'a> IntoStatic for Part<'a> {
+    type Output = Part<'static>;
+
+    fn into_static(self) -> Self::Output {
+        Part {
+            user: self.user.into_static(),
+            channel: self.channel.into_static(),
         }
     }
 }

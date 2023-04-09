@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{messages::*, HashMap, Prefix, Tags};
+use crate::{messages::*, Badge, HashMap, Prefix, Tags};
 
 /// A trait for converting a T: 'a to a T: 'static
 ///
@@ -93,6 +93,22 @@ impl IntoStatic for &MsgIdRef {
 
 impl<'a> IntoStatic for Cow<'a, MsgIdRef> {
     type Output = Cow<'static, MsgIdRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl<'a> IntoStatic for Cow<'a, BadgeSetIdRef> {
+    type Output = Cow<'static, BadgeSetIdRef>;
+
+    fn into_static(self) -> Self::Output {
+        IntoCow::into_cow(self.to_string())
+    }
+}
+
+impl<'a> IntoStatic for Cow<'a, ChatBadgeIdRef> {
+    type Output = Cow<'static, ChatBadgeIdRef>;
 
     fn into_static(self) -> Self::Output {
         IntoCow::into_cow(self.to_string())
@@ -516,6 +532,17 @@ impl<'a> IntoStatic for Part<'a> {
         Part {
             user: self.user.into_static(),
             channel: self.channel.into_static(),
+        }
+    }
+}
+
+impl<'a> IntoStatic for Badge<'a> {
+    type Output = Badge<'static>;
+
+    fn into_static(self) -> Self::Output {
+        Badge {
+            name: self.name.into_static(),
+            version: self.version.into_static(),
         }
     }
 }

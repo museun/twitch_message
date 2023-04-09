@@ -466,6 +466,7 @@ where
         Self::Output {
             tags: self.tags.into_static(),
             raw: self.raw.into_static(),
+            channel: self.channel.into_static(),
         }
     }
 }

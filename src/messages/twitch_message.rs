@@ -329,7 +329,7 @@ mod tests {
         use std::borrow::Cow;
 
         let inputs = [
-"@emote-only=0;followers-only=-1;r9k=0;room-id=23196011;slow=0;subs-only=0 :tmi.twitch.tv ROOMSTATE #museun\r\n",
+"@badge-info=;badges=moderator/1;color=#008000;display-name=shaken_bot;emote-sets=0;id=74b86b45-99c3-4c76-93e4-58f522bbdb31;mod=1;subscriber=0;user-type=mod :tmi.twitch.tv USERSTATE #museun\r\n",
 ":tmi.twitch.tv RECONNECT\r\n",
 ":tmi.twitch.tv 376 museun :>\r\n",
 "PONG :1234567890\r\n",
@@ -346,9 +346,10 @@ mod tests {
         ];
 
         let expected = vec![
-            TwitchMessage::RoomState(RoomState {
+            TwitchMessage::UserState(UserState {
                 tags: Tags::default(),
                 raw: Cow::default(),
+                channel: Cow::from("#museun"),
             }),
             TwitchMessage::Reconnect(Reconnect {
                 raw: Cow::default(),
@@ -394,6 +395,7 @@ mod tests {
             TwitchMessage::RoomState(RoomState {
                 tags: Tags::default(),
                 raw: Cow::default(),
+                channel: Cow::from("#museun"),
             }),
             TwitchMessage::Privmsg(Privmsg {
                 channel: Cow::default(),

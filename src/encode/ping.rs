@@ -31,6 +31,12 @@ impl<'a> crate::encode::fmt::Formattable for Ping<'a> {
     }
 }
 
+impl<'a> std::fmt::Display for Ping<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -41,6 +47,12 @@ mod tests {
         let ping = super::ping("1234567890");
         ping.format(&mut out).unwrap();
         assert_eq!(out, "PING 1234567890\r\n");
+    }
+
+    #[test]
+    fn ping_display() {
+        let raw = super::ping("1234567890");
+        assert_eq!(raw.to_string(), "PING 1234567890\r\n");
     }
 
     #[test]

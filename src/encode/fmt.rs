@@ -11,7 +11,7 @@ pub trait Format: Write {
 impl<T> Format for T where T: Write {}
 
 /// A trait for formatting a message with [`core::fmt::Write`]
-pub trait Formattable {
+pub trait Formattable: std::fmt::Display {
     /// Format the message
     fn format(&self, fmt: impl Write) -> core::fmt::Result;
 }

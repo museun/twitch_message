@@ -32,6 +32,12 @@ impl<'a> crate::encode::fmt::Formattable for Raw<'a> {
     }
 }
 
+impl<'a> std::fmt::Display for Raw<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt(f, core::fmt::Write::write_fmt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -42,6 +48,12 @@ mod tests {
         let raw = super::raw("hello world");
         raw.format(&mut out).unwrap();
         assert_eq!(out, "hello world\r\n");
+    }
+
+    #[test]
+    fn raw_display() {
+        let raw = super::raw("hello world");
+        assert_eq!(raw.to_string(), "hello world\r\n");
     }
 
     #[test]

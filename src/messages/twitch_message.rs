@@ -44,6 +44,10 @@ pub enum TwitchMessage<'a> {
     Capability(Capability<'a>),
     /// [`CLEARCHAT`](https://dev.twitch.tv/docs/irc/commands/#clearchat) command. Sent when a bot or moderator removes all messages from the chat room or removes all messages for the specified user.
     ClearChat(ClearChat<'a>),
+    /// A user has joined a channel
+    Join(Join<'a>),
+    /// A user has left a channel
+    Part(Part<'a>),
     /// A twitch chat message.
     ///
     /// This is a 'catchall' for when a message cannot be turned into a [`self::TwitchMessage`]
@@ -215,6 +219,34 @@ impl<'a, 'b: 'a> From<&'b Ready<'a>> for TwitchMessage<'a> {
     #[inline]
     fn from(ty: &'b Ready<'a>) -> Self {
         Self::Ready(ty.clone())
+    }
+}
+
+impl<'a> From<Part<'a>> for TwitchMessage<'a> {
+    #[inline]
+    fn from(ty: Part<'a>) -> Self {
+        Self::Part(ty.clone())
+    }
+}
+
+impl<'a, 'b: 'a> From<&'b Part<'a>> for TwitchMessage<'a> {
+    #[inline]
+    fn from(ty: &'b Part<'a>) -> Self {
+        Self::Part(ty.clone())
+    }
+}
+
+impl<'a> From<Join<'a>> for TwitchMessage<'a> {
+    #[inline]
+    fn from(ty: Join<'a>) -> Self {
+        Self::Join(ty.clone())
+    }
+}
+
+impl<'a, 'b: 'a> From<&'b Join<'a>> for TwitchMessage<'a> {
+    #[inline]
+    fn from(ty: &'b Join<'a>) -> Self {
+        Self::Join(ty.clone())
     }
 }
 

@@ -2,8 +2,8 @@
 
 use crate::{
     messages::{
-        Capability, ClearChat, ClearMsg, GlobalUserState, HostTarget, IrcReady, Message,
-        MessageKind, Notice, Ping, Pong, Privmsg, Ready, Reconnect, RoomState, UserNotice,
+        Capability, ClearChat, ClearMsg, GlobalUserState, HostTarget, IrcReady, Join, Message,
+        MessageKind, Notice, Part, Ping, Pong, Privmsg, Ready, Reconnect, RoomState, UserNotice,
         UserState, Whisper,
     },
     IntoStatic,
@@ -78,4 +78,6 @@ typed_message! {
     UserNotice      => USER_NOTICE       ; 13
     Whisper         => WHISPER           ; 14
     Reconnect       => RECONNECT         ; 15
+    Part            => PART              ; 16
+    Join            => JOIN              ; 17
 }

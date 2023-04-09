@@ -24,6 +24,10 @@ pub enum MessageKind<'a> {
     RoomState,
     /// [`Privmsg`](super::messages::Privmsg)
     Privmsg,
+    /// [`Join`](super::messages::Join)
+    Join,
+    /// [`Part`](super::messages::Part)
+    Part,
     /// [`ClearChat`](super::messages::ClearChat)
     ClearChat,
     /// [`ClearMsg`](super::messages::ClearMsg)
@@ -56,6 +60,8 @@ impl MessageKind<'_> {
             Self::UserState => "UserState",
             Self::RoomState => "RoomState",
             Self::Privmsg => "Privmsg",
+            Self::Join => "Join",
+            Self::Part => "Part",
             Self::ClearChat => "ClearChat",
             Self::ClearMsg => "ClearMsg",
             Self::Notice => "Notice",
@@ -110,6 +116,9 @@ impl<'a> Parse<'a> for MessageKind<'a> {
             "WHISPER" => Self::Whisper,
 
             "RECONNECT" => Self::Reconnect,
+
+            "JOIN" => Self::Join,
+            "PART" => Self::Part,
 
             s if s.chars().all(|c| c.is_ascii_digit()) => {
                 Self::Numeric(s.parse().map_err(|_| Error::InvalidNumeric)?)

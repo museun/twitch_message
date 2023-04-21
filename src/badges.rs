@@ -13,8 +13,8 @@ use crate::{
 ///
 /// let input = "broadcaster/1,foo/bar";
 /// let expected = [
-///     Badge{ name: Cow::Borrowed("broadcaster".into()), version: Cow::Borrowed("1".into()) },
-///     Badge{ name: Cow::Borrowed("foo".into()), version: Cow::Borrowed("bar".into()) },
+///     Badge{ set_id: Cow::Borrowed("broadcaster".into()), id: Cow::Borrowed("1".into()) },
+///     Badge{ set_id: Cow::Borrowed("foo".into()), id: Cow::Borrowed("bar".into()) },
 /// ];
 /// for (i, badge) in parse_badges(input).enumerate() {
 ///     assert_eq!(expected[i], badge)
@@ -26,24 +26,24 @@ pub fn parse_badges(input: &str) -> impl Iterator<Item = Badge<'_>> + '_ {
     input
         .split(',')
         .flat_map(|badge| badge.split_once('/'))
-        .map(|(name, version)| {
-            let mut version = Cow::Borrowed(version);
-            Badge::unescape(&mut version);
+        .map(|(set_id, id)| {
+            let mut id = Cow::Borrowed(id);
+            Badge::unescape(&mut id);
             Badge {
-                name: Cow::Borrowed(name.into()),
-                version: IntoCow::into_cow(version),
+                set_id: Cow::Borrowed(set_id.into()),
+                id: IntoCow::into_cow(id),
             }
         })
 }
 
 /// A badge attached to a message
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Badge<'a> {
-    /// The name of the badge
-    pub name: Cow<'a, BadgeSetIdRef>,
-    /// The version (or, more specifically the metadata) for the badge
-    pub version: Cow<'a, ChatBadgeIdRef>,
+    /// The set_id or name of the badge
+    pub set_id: Cow<'a, BadgeSetIdRef>,
+    /// The id, version or metadata for the badge version
+    pub id: Cow<'a, ChatBadgeIdRef>,
 }
 
 impl<'a> Badge<'a> {
@@ -55,8 +55,8 @@ impl<'a> Badge<'a> {
     ///
     /// let tags = Tags::builder().add("badges", "broadcaster/1,foo/bar").finish();
     /// let expected = [
-    ///     Badge{ name: Cow::Borrowed("broadcaster".into()), version: Cow::Borrowed("1".into()) },
-    ///     Badge{ name: Cow::Borrowed("foo".into()), version: Cow::Borrowed("bar".into()) },
+    ///     Badge{ set_id: Cow::Borrowed("broadcaster".into()), id: Cow::Borrowed("1".into()) },
+    ///     Badge{ set_id: Cow::Borrowed("foo".into()), id: Cow::Borrowed("bar".into()) },
     /// ];
     /// for (i, badge) in Badge::from_tags(&tags).enumerate() {
     ///     assert_eq!(expected[i], badge)

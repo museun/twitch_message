@@ -127,45 +127,45 @@ impl<'a> Privmsg<'a> {
     /// The message is from the broadcaster of the channel
     pub fn is_from_broadcaster(&self) -> bool {
         self.badges()
-            .any(|badge| badge.name.as_str() == "broadcaster")
+            .any(|badge| badge.set_id.as_str() == "broadcaster")
     }
 
     /// The message is from a moderator in the channel
     pub fn is_from_moderator(&self) -> bool {
         self.badges()
-            .any(|badge| badge.name.as_str() == "moderator")
+            .any(|badge| badge.set_id.as_str() == "moderator")
     }
 
     /// The message is from a VIP in the channel
     pub fn is_from_vip(&self) -> bool {
-        self.badges().any(|badge| badge.name.as_str() == "vip")
+        self.badges().any(|badge| badge.set_id.as_str() == "vip")
     }
 
     /// The message is from a subscriber of the channel
     pub fn is_from_subscriber(&self) -> bool {
         self.badges()
-            .any(|badge| badge.name.as_str() == "subscriber")
+            .any(|badge| badge.set_id.as_str() == "subscriber")
     }
 
     /// The message is from Twitch staff
     pub fn is_from_staff(&self) -> bool {
-        self.badges().any(|badge| badge.name.as_str() == "staff")
+        self.badges().any(|badge| badge.set_id.as_str() == "staff")
     }
 
     /// The message is from a turbo user
     pub fn is_from_turbo(&self) -> bool {
-        self.badges().any(|badge| badge.name.as_str() == "turbo")
+        self.badges().any(|badge| badge.set_id.as_str() == "turbo")
     }
 
     /// The message is from a global moderator
     pub fn is_from_global_moderator(&self) -> bool {
         self.badges()
-            .any(|badge| badge.name.as_str() == "global_mod")
+            .any(|badge| badge.set_id.as_str() == "global_mod")
     }
 
     /// The message is from a admin
     pub fn is_from_admin(&self) -> bool {
-        self.badges().any(|badge| badge.name.as_str() == "admin")
+        self.badges().any(|badge| badge.set_id.as_str() == "admin")
     }
 
     /// A builder for constructing a [`Message`](crate::messages::Message) or [`Privmsg`](crate::messages::Privmsg)

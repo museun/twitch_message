@@ -37,13 +37,18 @@ pub fn parse_badges(input: &str) -> impl Iterator<Item = Badge<'_>> + '_ {
 }
 
 /// A badge attached to a message
-#[derive(Debug, Clone, PartialEq, Eq, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
 pub struct Badge<'a> {
     /// The set_id or name of the badge
     pub set_id: Cow<'a, BadgeSetIdRef>,
     /// The id, version or metadata for the badge
     pub id: Cow<'a, ChatBadgeIdRef>,
+}
+impl Ord for Badge<'_> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.partial_cmp(other).expect("badges are fully")
+    }
 }
 
 impl<'a> PartialOrd for Badge<'a> {
@@ -52,20 +57,14 @@ impl<'a> PartialOrd for Badge<'a> {
             "staff",
             "admin",
             "global_mod",
-
             "broadcaster",
             "vip",
             "moderator",
-
             "partner",
-
             "subscriber",
-
             "artist-badge",
-
             "turbo",
             "premium",
-
             "bits-leader",
             "bits",
         ];
@@ -90,7 +89,7 @@ impl<'a> PartialOrd for Badge<'a> {
             self.id.as_str().parse::<u32>(),
             other.id.as_str().parse::<u32>(),
         ) {
-            (Ok(s), Ok(other)) => s.partial_cmp(&other),
+            (Ok(s), Ok(other)) if s != other => s.partial_cmp(&other),
             (_, _) => self.id.partial_cmp(&other.id),
         }
     }
@@ -157,10 +156,15 @@ fn badge_ordering() {
     assert!(parse("subscriber/0") < parse("subscriber/1"));
     let mut badges: Vec<_> = parse_badges("bits/1,staff/1,broadcaster/1").collect();
     badges.sort();
-    assert_eq!(badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(), vec!["staff", "broadcaster", "bits"]);
+    assert_eq!(
+        badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
+        vec!["staff", "broadcaster", "bits"]
+    );
 
     let mut badges: Vec<_> = parse_badges("aaa/1,zzz/1,staff/1").collect();
     badges.sort();
-    assert_eq!(badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(), vec!["staff", "aaa", "zzz"]);
-
+    assert_eq!(
+        badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
+        vec!["staff", "aaa", "zzz"]
+    );
 }

@@ -167,7 +167,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn ordering() {
+    fn id_ordering() {
         let badges = "U/1U,U/11,U/5";
 
         let mut badges: Vec<_> = parse_badges(badges).collect();

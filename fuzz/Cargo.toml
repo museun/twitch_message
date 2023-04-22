@@ -1,0 +1,26 @@
+[package]
+name = "twitch_message-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+itertools = "0.10.5"
+libfuzzer-sys = "0.4"
+
+[dependencies.twitch_message]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "badge_fuzz"
+path = "fuzz_targets/badge_fuzz.rs"
+test = false
+doc = false

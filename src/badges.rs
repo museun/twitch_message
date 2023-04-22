@@ -56,19 +56,19 @@ impl Ord for Badge<'_> {
 impl<'a> PartialOrd for Badge<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         static KNOWN_BADGES: &[&str] = &[
-            "staff",
-            "admin",
-            "global_mod",
-            "broadcaster",
-            "vip",
-            "moderator",
-            "partner",
-            "subscriber",
-            "artist-badge",
-            "turbo",
-            "premium",
-            "bits-leader",
             "bits",
+            "bits-leader",
+            "premium",
+            "turbo",
+            "artist-badge",
+            "subscriber",
+            "partner",
+            "moderator",
+            "vip",
+            "broadcaster",
+            "global_mod",
+            "admin",
+            "staff",
         ];
 
         use core::cmp::Ordering;
@@ -89,7 +89,6 @@ impl<'a> PartialOrd for Badge<'a> {
                 _ => return ord,
             },
         }
-        // XXX: numerical partial_cmp on self.id, so that subscriber/12 > subscriber/9
 
         let is_all_digit = |s: &Self| s.id.as_str().chars().all(|c| c.is_ascii_digit());
         let parse_num = |s: &Self| {
@@ -167,6 +166,49 @@ mod tests {
     use super::*;
 
     #[test]
+    fn composite_ordering() {
+        let badges = "premium/1,broadcaster/1,subscriber/5,subscriber/4,subscriber/12";
+        let mut badges: Vec<_> = parse_badges(badges).collect();
+
+        let expected = [
+            ("premium", "1"),
+            ("broadcaster", "1"),
+            ("subscriber", "5"),
+            ("subscriber", "4"),
+            ("subscriber", "12"),
+        ]
+        .into_iter()
+        .map(|(k, v)| Badge {
+            set_id: Cow::from(BadgeSetIdRef::from_static(k)),
+            id: Cow::from(ChatBadgeIdRef::from_static(v)),
+        })
+        .collect::<Vec<_>>();
+
+        assert_eq!(badges, expected);
+
+        badges.sort();
+
+        let expected = [
+            ("premium", "1"),
+            ("subscriber", "4"),
+            ("subscriber", "5"),
+            ("subscriber", "12"),
+            ("broadcaster", "1"),
+        ]
+        .into_iter()
+        .map(|(k, v)| Badge {
+            set_id: Cow::from(BadgeSetIdRef::from_static(k)),
+            id: Cow::from(ChatBadgeIdRef::from_static(v)),
+        })
+        .collect::<Vec<_>>();
+
+        assert_eq!(
+            badges, expected,
+            "\ngot: {badges:#?}\n\nexpected: {expected:#?}\n"
+        );
+    }
+
+    #[test]
     fn id_ordering() {
         let badges = "U/1U,U/11,U/5";
 
@@ -208,7 +250,7 @@ mod tests {
         badges.sort();
         assert_eq!(
             badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
-            vec!["staff", "broadcaster", "bits"]
+            vec!["bits", "broadcaster", "staff",]
         );
 
         let mut badges: Vec<_> = parse_badges("aaa/1,zzz/1,staff/1").collect();

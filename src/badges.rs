@@ -47,7 +47,7 @@ pub struct Badge<'a> {
 }
 impl Ord for Badge<'_> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.partial_cmp(other).expect("badges are fully")
+        self.partial_cmp(other).expect("badges are fully comparable")
     }
 }
 

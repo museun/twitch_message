@@ -133,6 +133,11 @@ impl TagsBuilder {
         self
     }
 
+    /// Determines whether a tag key exists in the builder
+    pub fn has(&self, key: &str) -> bool {
+        self.0.contains_key(key)
+    }
+
     /// Construct a [`Tags`] from this builder
     pub fn finish(self) -> Tags<'static> {
         Tags {

@@ -45,15 +45,17 @@ pub struct Badge<'a> {
     /// The id, version or metadata for the badge
     pub id: Cow<'a, ChatBadgeIdRef>,
 }
+
 impl Ord for Badge<'_> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.partial_cmp(other).expect("badges are fully comparable")
+        self.partial_cmp(other)
+            .expect("badges are fully comparable")
     }
 }
 
 impl<'a> PartialOrd for Badge<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        static KNOWN_BADGES: &[&'_ str] = &[
+        static KNOWN_BADGES: &[&str] = &[
             "staff",
             "admin",
             "global_mod",
@@ -68,8 +70,11 @@ impl<'a> PartialOrd for Badge<'a> {
             "bits-leader",
             "bits",
         ];
+
+        use core::cmp::Ordering;
+
         match self.set_id.partial_cmp(&other.set_id) {
-            Some(core::cmp::Ordering::Equal) => {}
+            Some(Ordering::Equal) => {}
             // XXX: order known badges like first-party site
             // FIXME: is the reflexive and transitive? as needed by Ord
             ord => match (
@@ -78,18 +83,30 @@ impl<'a> PartialOrd for Badge<'a> {
                     .iter()
                     .position(|b| *b == other.set_id.as_str()),
             ) {
-                (Some(s), Some(other)) => return s.partial_cmp(&other),
-                (Some(_), None) => return Some(core::cmp::Ordering::Less),
-                (None, Some(_)) => return Some(core::cmp::Ordering::Greater),
+                (Some(left), Some(right)) => return left.partial_cmp(&right),
+                (Some(_), None) => return Some(Ordering::Less),
+                (None, Some(_)) => return Some(Ordering::Greater),
                 _ => return ord,
             },
         }
         // XXX: numerical partial_cmp on self.id, so that subscriber/12 > subscriber/9
-        match (
-            self.id.as_str().parse::<u32>(),
-            other.id.as_str().parse::<u32>(),
-        ) {
-            (Ok(s), Ok(other)) if s != other => s.partial_cmp(&other),
+
+        let is_all_digit = |s: &Self| s.id.as_str().chars().all(|c| c.is_ascii_digit());
+        let parse_num = |s: &Self| {
+            is_all_digit(s)
+                .then(|| s.id.as_str().parse::<u32>().ok())
+                .flatten()
+        };
+
+        if !is_all_digit(self) {
+            return None;
+        }
+        if !is_all_digit(other) {
+            return None;
+        }
+
+        match (parse_num(self), parse_num(other)) {
+            (Some(left), Some(right)) if left != right => left.partial_cmp(&right),
             (_, _) => self.id.partial_cmp(&other.id),
         }
     }
@@ -146,25 +163,59 @@ impl Badge<'_> {
 }
 
 #[cfg(test)]
-#[test]
-fn badge_ordering() {
-    #[track_caller]
-    fn parse(s: &str) -> Badge<'_> {
-        parse_badges(s).next().unwrap()
-    }
-    assert!(parse("subscriber/12") > parse("subscriber/9"));
-    assert!(parse("subscriber/0") < parse("subscriber/1"));
-    let mut badges: Vec<_> = parse_badges("bits/1,staff/1,broadcaster/1").collect();
-    badges.sort();
-    assert_eq!(
-        badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
-        vec!["staff", "broadcaster", "bits"]
-    );
+mod tests {
+    use super::*;
 
-    let mut badges: Vec<_> = parse_badges("aaa/1,zzz/1,staff/1").collect();
-    badges.sort();
-    assert_eq!(
-        badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
-        vec!["staff", "aaa", "zzz"]
-    );
+    #[test]
+    fn ordering() {
+        let badges = "U/1U,U/11,U/5";
+
+        let mut badges: Vec<_> = parse_badges(badges).collect();
+
+        let expected = [("U", "1U"), ("U", "11"), ("U", "5")]
+            .into_iter()
+            .map(|(k, v)| Badge {
+                set_id: Cow::from(BadgeSetIdRef::from_static(k)),
+                id: Cow::from(ChatBadgeIdRef::from_static(v)),
+            })
+            .collect::<Vec<_>>();
+
+        assert_eq!(badges, expected);
+
+        badges.sort();
+
+        let expected = [("U", "1U"), ("U", "5"), ("U", "11")]
+            .into_iter()
+            .map(|(k, v)| Badge {
+                set_id: Cow::from(BadgeSetIdRef::from_static(k)),
+                id: Cow::from(ChatBadgeIdRef::from_static(v)),
+            })
+            .collect::<Vec<_>>();
+
+        assert_eq!(badges, expected);
+    }
+
+    #[test]
+    fn badge_ordering() {
+        #[track_caller]
+        fn parse(s: &str) -> Badge<'_> {
+            parse_badges(s).next().unwrap()
+        }
+
+        assert!(parse("subscriber/12") > parse("subscriber/9"));
+        assert!(parse("subscriber/0") < parse("subscriber/1"));
+        let mut badges: Vec<_> = parse_badges("bits/1,staff/1,broadcaster/1").collect();
+        badges.sort();
+        assert_eq!(
+            badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
+            vec!["staff", "broadcaster", "bits"]
+        );
+
+        let mut badges: Vec<_> = parse_badges("aaa/1,zzz/1,staff/1").collect();
+        badges.sort();
+        assert_eq!(
+            badges.iter().map(|b| b.set_id.as_str()).collect::<Vec<_>>(),
+            vec!["staff", "aaa", "zzz"]
+        );
+    }
 }

@@ -120,7 +120,7 @@ impl<'a> Parse<'a> for Tags<'a> {
 /// assert_eq!(tags.get("foo"), Some("bar"));
 /// assert_eq!(tags.parsed::<usize>("baz"), Some(Ok(42)));
 /// ```
-#[derive(Default, Debug)]
+#[derive(Default, Clone, Debug)]
 pub struct TagsBuilder(HashMap<String, String>);
 
 impl TagsBuilder {

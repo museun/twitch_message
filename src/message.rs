@@ -262,7 +262,7 @@ impl std::error::Error for PrivmsgBuilderError {
 /// assert_eq!(pm.raw, expected);
 /// # Ok::<(),Box<dyn std::error::Error>>(())
 /// ```
-#[derive(Default, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct PrivmsgBuilder {
     tags: Option<Tags<'static>>,
     sender: Option<Cow<'static, str>>,

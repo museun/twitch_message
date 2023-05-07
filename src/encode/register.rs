@@ -3,6 +3,9 @@ use super::Capability;
 /// This allows you to initialize the registration handshake with the server
 ///
 /// You must provide a name and an associated chat `OAuth` token to send messages to Twitch
+///
+/// **NOTE** If your OAuth token is not prefixed with `oauth:` it will be added
+///
 /// If you just want to read messages, then the [`ANONYMOUS_LOGIN`](crate::ANONYMOUS_LOGIN) tuple is provided.
 ///
 /// # Capabilities
@@ -41,7 +44,16 @@ impl<'a, const N: usize> Register<'a, N> {
                 format_args!("CAP REQ {cap}\r\n", cap = cap.as_str()),
             )?;
         }
-        apply(writer, format_args!("PASS {pass}\r\n", pass = self.oauth))?;
+
+        let is_prefixed = self.oauth.starts_with("oauth:");
+        apply(
+            writer,
+            format_args!(
+                "PASS {prefix}{pass}\r\n",
+                pass = self.oauth,
+                prefix = if is_prefixed { "" } else { "oauth:" }
+            ),
+        )?;
         apply(writer, format_args!("NICK {name}\r\n", name = self.name))
     }
 }
@@ -76,8 +88,14 @@ mod tests {
         register.format(&mut out).unwrap();
         assert_eq!(
             out,
-            "CAP REQ twitch.tv/tags\r\nPASS password\r\nNICK test\r\n"
+            "CAP REQ twitch.tv/tags\r\nPASS oauth:password\r\nNICK test\r\n"
         );
+    }
+
+    #[test]
+    fn oauth_prefix() {
+        let register = super::register("test", "password", []);
+        assert_eq!(register.to_string(), "PASS oauth:password\r\nNICK test\r\n");
     }
 
     #[test]
@@ -85,7 +103,7 @@ mod tests {
         let register = super::register("test", "password", [crate::encode::Capability::Tags]);
         assert_eq!(
             register.to_string(),
-            "CAP REQ twitch.tv/tags\r\nPASS password\r\nNICK test\r\n"
+            "CAP REQ twitch.tv/tags\r\nPASS oauth:password\r\nNICK test\r\n"
         );
     }
 
@@ -99,7 +117,7 @@ mod tests {
         register.encode(&mut out).unwrap();
         assert_eq!(
             out,
-            b"CAP REQ twitch.tv/tags\r\nPASS password\r\nNICK test\r\n"
+            b"CAP REQ twitch.tv/tags\r\nPASS oauth:password\r\nNICK test\r\n"
         );
     }
 }

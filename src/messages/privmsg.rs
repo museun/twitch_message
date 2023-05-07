@@ -17,11 +17,18 @@ pub struct Privmsg<'a> {
     pub tags: Tags<'a>,
     /// The text message
     pub data: Cow<'a, str>,
+    /// This message was an `ACTION`
+    pub action: bool,
     /// The raw underlying string
     pub raw: Cow<'a, str>,
 }
 
 impl<'a> Privmsg<'a> {
+    /// This message was sent as an `ACTION`
+    pub fn is_action(&self) -> bool {
+        self.action
+    }
+
     /// Contains metadata related to the chat badges in the [`badges`](Self::badges) tag.
     pub fn badge_info<'t: 'a>(&'t self) -> impl Iterator<Item = Badge<'a>> + 't {
         self.tags
@@ -180,6 +187,27 @@ impl Privmsg<'_> {
             && value.data.is_some()
             && !value.args.is_empty()
     }
+
+    fn parse_action<'a>(data: Cow<'a, str>) -> (bool, Cow<'a, str>) {
+        fn inner(input: &str) -> Option<&str> {
+            input
+                .strip_prefix("\u{1}ACTION")
+                .and_then(|s| s.strip_suffix('\u{1}'))
+                .map(<str>::trim)
+        }
+
+        match data {
+            Cow::Borrowed(data) => inner(data)
+                .map(Cow::from)
+                .map(|c| (true, c))
+                .unwrap_or_else(|| (false, Cow::Borrowed(data))),
+            Cow::Owned(data) => inner(&data)
+                .map(ToString::to_string)
+                .map(Cow::from)
+                .map(|c| (true, c))
+                .unwrap_or_else(|| (false, Cow::Owned(data))),
+        }
+    }
 }
 
 impl<'a> TryFrom<Message<'a>> for Privmsg<'a> {
@@ -190,6 +218,8 @@ impl<'a> TryFrom<Message<'a>> for Privmsg<'a> {
             return Err(value);
         }
 
+        let (action, data) = Self::parse_action(value.data.unwrap());
+
         Ok(Self {
             channel: value.args.remove(0),
             sender: match value.prefix {
@@ -197,8 +227,9 @@ impl<'a> TryFrom<Message<'a>> for Privmsg<'a> {
                 _ => unreachable!(),
             },
             tags: value.tags,
-            data: value.data.unwrap(),
+            data,
             raw: value.raw,
+            action,
         })
     }
 }
@@ -211,6 +242,8 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for Privmsg<'a> {
             return Err(value);
         }
 
+        let (action, data) = Self::parse_action(value.data.clone().unwrap());
+
         Ok(Self {
             channel: value.args[0].clone(),
             sender: match value.prefix.clone() {
@@ -218,8 +251,9 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for Privmsg<'a> {
                 _ => unreachable!(),
             },
             tags: value.tags.clone(),
-            data: value.data.clone().unwrap(),
+            data,
             raw: value.raw.clone(),
+            action,
         })
     }
 }
@@ -228,6 +262,24 @@ impl<'a, 'b> TryFrom<&'b Message<'a>> for Privmsg<'a> {
 mod tests {
     use super::*;
     use crate::test_util;
+
+    #[test]
+    fn action() {
+        let input =
+            ":test!test@test.tmi.twitch.tv PRIVMSG #testing :\u{1}ACTION @Foo does something.\u{1}";
+
+        assert_eq!(
+            test_util::parse_as::<Privmsg>(input),
+            Privmsg {
+                raw: Cow::from(input),
+                tags: Tags::default(),
+                channel: Cow::from("#testing"),
+                sender: IntoCow::into_cow("test"),
+                data: Cow::from("@Foo does something."),
+                action: true,
+            }
+        );
+    }
 
     #[test]
     fn privmsg() {
@@ -256,7 +308,8 @@ mod tests {
                 tags,
                 channel: Cow::from("#museun"),
                 sender: IntoCow::into_cow("museun"),
-                data: Cow::from("testing")
+                data: Cow::from("testing"),
+                action: false,
             }
         );
     }

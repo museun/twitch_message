@@ -403,6 +403,7 @@ mod tests {
                 tags: Tags::default(),
                 data: Cow::default(),
                 raw: Cow::default(),
+                action: false,
             }),
             TwitchMessage::Whisper(Whisper {
                 raw: Cow::default(),

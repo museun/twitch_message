@@ -428,6 +428,7 @@ where
             tags: self.tags.into_static(),
             data: self.data.into_static(),
             raw: self.raw.into_static(),
+            action: self.action,
         }
     }
 }

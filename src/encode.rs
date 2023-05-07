@@ -66,6 +66,9 @@ pub use pong::{pong, Pong};
 mod raw;
 pub use raw::{raw, Raw};
 
+mod quit;
+pub use quit::{quit, Quit};
+
 #[inline]
 pub(crate) fn octo(data: &str) -> &str {
     if !data.starts_with('#') {

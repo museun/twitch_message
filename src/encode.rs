@@ -69,6 +69,9 @@ pub use raw::{raw, Raw};
 mod quit;
 pub use quit::{quit, Quit};
 
+mod whisper;
+pub use whisper::{whisper, Whisper};
+
 #[inline]
 pub(crate) fn octo(data: &str) -> &str {
     if !data.starts_with('#') {

@@ -544,8 +544,8 @@ impl<'a> IntoStatic for Badge<'a> {
 
     fn into_static(self) -> Self::Output {
         Badge {
-            name: self.name.into_static(),
-            version: self.version.into_static(),
+            set_id: self.set_id.into_static(),
+            id: self.id.into_static(),
         }
     }
 }
